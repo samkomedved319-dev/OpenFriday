@@ -1,0 +1,17 @@
+{
+  "name": "open-friday",
+  "version": "2.0.0",
+  "description": "Advanced local AI developer CLI - Claude-like experience",
+  "main": "index.js",
+  "bin": {
+    "openfriday": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "link": "npm link"
+  },
+  "keywords": ["ai", "cli", "developer", "assistant"],
+  "author": "Open Friday",
+  "license": "MIT",
+  "dependencies": {}
+}
