@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Friday - Login & Pricing</title>
+  <title>Open Friday - Login & Dashboard</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
@@ -16,9 +16,6 @@
       --text: #e8e8ed;
       --text-dim: #8888a0;
       --border: #2a2a3a;
-      --success: #00d4aa;
-      --warning: #ffaa00;
-      --error: #ff4466;
     }
     
     body {
@@ -26,11 +23,10 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      line-height: 1.6;
     }
     
     .container {
-      max-width: 900px;
+      max-width: 800px;
       margin: 0 auto;
       padding: 40px 20px;
     }
@@ -38,7 +34,7 @@
     /* Header */
     .header {
       text-align: center;
-      margin-bottom: 50px;
+      margin-bottom: 40px;
     }
     
     .logo {
@@ -48,22 +44,17 @@
     
     .header h1 {
       font-size: 32px;
-      font-weight: 300;
       color: var(--accent);
       margin-bottom: 8px;
     }
     
-    .header p {
-      color: var(--text-dim);
-    }
+    .header p { color: var(--text-dim); }
     
     /* Tabs */
     .tabs {
       display: flex;
       gap: 10px;
       margin-bottom: 30px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 10px;
     }
     
     .tab {
@@ -74,7 +65,6 @@
       cursor: pointer;
       font-size: 16px;
       border-radius: 8px;
-      transition: all 0.2s;
     }
     
     .tab:hover { background: var(--bg-card); }
@@ -88,7 +78,7 @@
     .section { display: none; }
     .section.active { display: block; }
     
-    /* Cards */
+    /* Card */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -99,113 +89,12 @@
     
     .card h2 {
       font-size: 20px;
+      color: var(--accent);
       margin-bottom: 20px;
-      color: var(--accent);
-    }
-    
-    /* Pricing Cards */
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-    
-    .pricing-card {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 25px;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    
-    .pricing-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-5px);
-    }
-    
-    .pricing-card.featured {
-      border-color: var(--accent);
-      position: relative;
-    }
-    
-    .pricing-card.featured::before {
-      content: "MOST POPULAR";
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--accent);
-      color: var(--bg);
-      padding: 4px 12px;
-      font-size: 11px;
-      border-radius: 20px;
-      font-weight: bold;
-    }
-    
-    .price {
-      font-size: 36px;
-      font-weight: bold;
-      color: var(--accent);
-      margin: 15px 0;
-    }
-    
-    .price span {
-      font-size: 16px;
-      color: var(--text-dim);
-      font-weight: normal;
-    }
-    
-    .pricing-card ul {
-      list-style: none;
-      text-align: left;
-      margin: 20px 0;
-    }
-    
-    .pricing-card li {
-      padding: 8px 0;
-      color: var(--text-dim);
-      font-size: 14px;
-    }
-    
-    .pricing-card li::before {
-      content: "✓";
-      color: var(--accent);
-      margin-right: 10px;
-    }
-    
-    .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      width: 100%;
-    }
-    
-    .btn:hover { background: var(--accent-dim); }
-    
-    .btn-outline {
-      background: transparent;
-      border: 2px solid var(--accent);
-      color: var(--accent);
-    }
-    
-    .btn-outline:hover {
-      background: var(--accent);
-      color: var(--bg);
     }
     
     /* Form */
-    .form-group {
-      margin-bottom: 20px;
-    }
+    .form-group { margin-bottom: 20px; }
     
     .form-group label {
       display: block;
@@ -222,82 +111,44 @@
       border-radius: 8px;
       color: var(--text);
       font-size: 16px;
-      transition: border-color 0.2s;
     }
     
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    .form-group input:focus, .form-group select:focus {
       outline: none;
       border-color: var(--accent);
     }
     
-    .form-group textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    
-    /* API List */
-    .api-list {
-      display: grid;
-      gap: 15px;
-    }
-    
-    .api-item {
-      background: var(--bg-input);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .api-item:hover {
-      border-color: var(--accent);
-    }
-    
-    .api-item.selected {
-      border-color: var(--accent);
-      background: rgba(0, 212, 170, 0.1);
-    }
-    
-    .api-info h3 {
+    .btn {
+      display: inline-block;
+      padding: 14px 30px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
       font-size: 16px;
-      margin-bottom: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
     }
     
-    .api-info p {
-      font-size: 13px;
-      color: var(--text-dim);
-    }
+    .btn:hover { background: var(--accent-dim); }
     
-    .api-status {
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      background: var(--bg-card);
-    }
-    
-    .api-status.connected {
-      background: rgba(0, 212, 170, 0.2);
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--accent);
       color: var(--accent);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent);
+      color: var(--bg);
     }
     
     /* Status */
     .status {
-      padding: 15px 20px;
+      padding: 15px;
       border-radius: 10px;
       margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
     }
     
     .status.success {
@@ -307,20 +158,72 @@
     
     .status.error {
       background: rgba(255, 68, 102, 0.1);
-      border: 1px solid var(--error);
+      border: 1px solid #ff4466;
     }
     
-    /* Footer */
+    /* API List */
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .api-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .api-item:hover { border-color: var(--accent); }
+    .api-item.selected { border-color: var(--accent); background: rgba(0,212,170,0.1); }
+    
+    .api-item h3 { font-size: 16px; margin-bottom: 5px; }
+    .api-item p { font-size: 13px; color: var(--text-dim); }
+    
+    /* Pricing */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    
+    .price-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+    }
+    
+    .price-card.featured { border-color: var(--accent); }
+    
+    .price-card h3 { font-size: 20px; margin-bottom: 10px; }
+    .price-card .price { font-size: 32px; color: var(--accent); font-weight: bold; }
+    .price-card .price span { font-size: 14px; color: var(--text-dim); }
+    .price-card ul { list-style: none; margin: 20px 0; text-align: left; }
+    .price-card li { padding: 8px 0; color: var(--text-dim); font-size: 14px; }
+    .price-card li::before { content: "✓"; color: var(--accent); margin-right: 10px; }
+    
+    /* User Info */
+    .user-info {
+      background: var(--bg-input);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .user-info h3 { color: var(--accent); margin-bottom: 10px; }
+    .user-info p { color: var(--text-dim); }
+    
     .footer {
       text-align: center;
-      margin-top: 50px;
+      margin-top: 40px;
       color: var(--text-dim);
       font-size: 14px;
-    }
-    
-    .footer a {
-      color: var(--accent);
-      text-decoration: none;
     }
   </style>
 </head>
@@ -329,31 +232,162 @@
     <div class="header">
       <div class="logo">🤖</div>
       <h1>Open Friday</h1>
-      <p>Advanced AI Developer Assistant</p>
+      <p>Advanced AI Coding Assistant</p>
     </div>
     
     <div class="tabs">
-      <button class="tab active" onclick="showTab('pricing')">Pricing</button>
-      <button class="tab" onclick="showTab('api')">API Configuration</button>
-      <button class="tab" onclick="showTab('login')">Login</button>
+      <button class="tab active" onclick="showTab('login')">Login</button>
+      <button class="tab" onclick="showTab('register')">Sign Up</button>
+      <button class="tab" onclick="showTab('dashboard')">Dashboard</button>
+      <button class="tab" onclick="showTab('api')">API Config</button>
+      <button class="tab" onclick="showTab('pricing')">Pricing</button>
+    </div>
+    
+    <!-- Login Section -->
+    <div id="login" class="section active">
+      <div class="card">
+        <h2>🔐 Login to Open Friday</h2>
+        <div id="loginStatus"></div>
+        
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="your@email.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required>
+          </div>
+          
+          <button type="submit" class="btn">Login</button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Register Section -->
+    <div id="register" class="section">
+      <div class="card">
+        <h2>📝 Create Account</h2>
+        <div id="registerStatus"></div>
+        
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="registerName" placeholder="Your name" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="registerEmail" placeholder="your@email.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required>
+          </div>
+          
+          <button type="submit" class="btn">Create Account</button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section">
+      <div class="card">
+        <h2>👤 Your Profile</h2>
+        <div id="userInfo"></div>
+        
+        <button class="btn btn-outline" onclick="logout()">Logout</button>
+      </div>
+      
+      <div class="card">
+        <h2>📊 Quick Stats</h2>
+        <p style="color: var(--text-dim);">Use Open Friday in your terminal:</p>
+        <pre style="background: var(--bg-input); padding: 15px; border-radius: 8px; margin-top: 15px; color: var(--accent);">openfriday</pre>
+      </div>
+    </div>
+    
+    <!-- API Config Section -->
+    <div id="api" class="section">
+      <div class="card">
+        <h2>🔌 Configure AI Providers</h2>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Select your preferred AI model for code generation.</p>
+        
+        <div id="apiStatus"></div>
+        
+        <div class="api-grid">
+          <div class="api-item selected" onclick="selectApi('openai')">
+            <h3>OpenAI</h3>
+            <p>GPT-4, GPT-3.5</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('anthropic')">
+            <h3>Anthropic</h3>
+            <p>Claude 3.5, Claude 3</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('google')">
+            <h3>Google</h3>
+            <p>Gemini Pro, Ultra</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('deepseek')">
+            <h3>DeepSeek</h3>
+            <p>DeepSeek Coder</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('cohere')">
+            <h3>Cohere</h3>
+            <p>Command R</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('ollama')">
+            <h3>Ollama</h3>
+            <p>Local Models</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('lmstudio')">
+            <h3>LM Studio</h3>
+            <p>Local Models</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('mistral')">
+            <h3>Mistral</h3>
+            <p>Mistral Large</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="apiKey" placeholder="Enter your API key">
+        </div>
+        
+        <div class="form-group">
+          <label>Model (optional)</label>
+          <input type="text" id="modelName" placeholder="e.g., gpt-4, claude-3.5-sonnet">
+        </div>
+        
+        <button class="btn" onclick="saveApiConfig()">Save Configuration</button>
+      </div>
     </div>
     
     <!-- Pricing Section -->
-    <div id="pricing" class="section active">
+    <div id="pricing" class="section">
       <div class="pricing-grid">
-        <div class="pricing-card">
+        <div class="price-card">
           <h3>Free</h3>
           <div class="price">$0<span>/month</span></div>
           <ul>
             <li>Built-in GodCoder AI</li>
             <li>Basic code generation</li>
-            <li>50 commands</li>
-            <li>Local operation only</li>
+            <li>40+ commands</li>
+            <li>Local operation</li>
           </ul>
-          <button class="btn btn-outline">Current Plan</button>
+          <button class="btn btn-outline">Current</button>
         </div>
         
-        <div class="pricing-card featured">
+        <div class="price-card featured">
           <h3>Pro</h3>
           <div class="price">$9<span>/month</span></div>
           <ul>
@@ -361,12 +395,11 @@
             <li>GPT-4, Claude, Gemini</li>
             <li>Unlimited generation</li>
             <li>Priority support</li>
-            <li>Cloud sync</li>
           </ul>
-          <button class="btn" onclick="selectPlan('pro')">Upgrade</button>
+          <button class="btn">Upgrade</button>
         </div>
         
-        <div class="pricing-card">
+        <div class="price-card">
           <h3>Enterprise</h3>
           <div class="price">$49<span>/month</span></div>
           <ul>
@@ -374,264 +407,158 @@
             <li>Team collaboration</li>
             <li>API access</li>
             <li>Dedicated support</li>
-            <li>On-premise option</li>
           </ul>
-          <button class="btn btn-outline" onclick="selectPlan('enterprise')">Contact Us</button>
+          <button class="btn btn-outline">Contact</button>
         </div>
-      </div>
-      
-      <div class="card">
-        <h2>💡 Why Upgrade?</h2>
-        <p style="color: var(--text-dim); margin-bottom: 15px;">
-          The free plan uses our built-in GodCoder AI which is great for basic tasks. 
-          Upgrade to unlock the full power of external AI models like GPT-4, Claude, and more!
-        </p>
-        <ul style="color: var(--text-dim); padding-left: 20px;">
-          <li>Better code quality with advanced models</li>
-          <li>More intelligent conversations and explanations</li>
-          <li>Access to latest AI capabilities</li>
-          <li>Priority processing and faster responses</li>
-        </ul>
-      </div>
-    </div>
-    
-    <!-- API Configuration Section -->
-    <div id="api" class="section">
-      <div id="apiStatus"></div>
-      
-      <div class="card">
-        <h2>🔌 Add Your Own AI API</h2>
-        <p style="color: var(--text-dim); margin-bottom: 20px;">
-          Connect Open Friday to your own AI provider. This allows you to use any AI model you prefer.
-        </p>
-        
-        <div class="form-group">
-          <label>Provider</label>
-          <select id="provider">
-            <option value="">Select a provider...</option>
-            <option value="openai">OpenAI (GPT-4, GPT-3.5)</option>
-            <option value="anthropic">Anthropic (Claude)</option>
-            <option value="google">Google (Gemini)</option>
-            <option value="ollama">Ollama (Local)</option>
-            <option value="lmstudio">LM Studio (Local)</option>
-            <option value="custom">Custom API</option>
-          </select>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>API Key</label>
-            <input type="password" id="apiKey" placeholder="sk-...">
-          </div>
-          <div class="form-group">
-            <label>Model Name</label>
-            <input type="text" id="modelName" placeholder="gpt-4, claude-3, etc.">
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>API Endpoint (optional)</label>
-          <input type="text" id="apiEndpoint" placeholder="https://api.openai.com/v1/chat/completions">
-        </div>
-        
-        <button class="btn" onclick="saveApiConfig()">Save Configuration</button>
-      </div>
-      
-      <div class="card">
-        <h2>📋 Available Providers</h2>
-        <div class="api-list">
-          <div class="api-item" onclick="selectApi('openai')">
-            <div class="api-info">
-              <h3>OpenAI</h3>
-              <p>GPT-4, GPT-4 Turbo, GPT-3.5 Turbo</p>
-            </div>
-            <span class="api-status">Configure</span>
-          </div>
-          
-          <div class="api-item" onclick="selectApi('anthropic')">
-            <div class="api-info">
-              <h3>Anthropic</h3>
-              <p>Claude 3.5, Claude 3, Claude 2</p>
-            </div>
-            <span class="api-status">Configure</span>
-          </div>
-          
-          <div class="api-item" onclick="selectApi('google')">
-            <div class="api-info">
-              <h3>Google</h3>
-              <p>Gemini Pro, Gemini Ultra</p>
-            </div>
-            <span class="api-status">Configure</span>
-          </div>
-          
-          <div class="api-item" onclick="selectApi('ollama')">
-            <div class="api-info">
-              <h3>Ollama</h3>
-              <p>Run AI models locally (Llama, Mistral, etc.)</p>
-            </div>
-            <span class="api-status connected">Connected</span>
-          </div>
-          
-          <div class="api-item" onclick="selectApi('builtin')">
-            <div class="api-info">
-              <h3>GodCoder (Built-in)</h3>
-              <p>Our custom offline AI assistant</p>
-            </div>
-            <span class="api-status connected">Active</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="card">
-        <h2>⚙️ Current Configuration</h2>
-        <div id="currentConfig">
-          <p style="color: var(--text-dim);">Loading configuration...</p>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Login Section -->
-    <div id="login" class="section">
-      <div class="card">
-        <h2>🔐 Login to Open Friday</h2>
-        <p style="color: var(--text-dim); margin-bottom: 20px;">
-          Login to sync your settings across devices and access premium features.
-        </p>
-        
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="email" placeholder="your@email.com">
-        </div>
-        
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="password" placeholder="••••••••">
-        </div>
-        
-        <button class="btn" onclick="login()">Login</button>
-        
-        <p style="text-align: center; margin-top: 15px; color: var(--text-dim);">
-          Don't have an account? <a href="#" style="color: var(--accent);">Sign up</a>
-        </p>
-      </div>
-      
-      <div class="card">
-        <h2>🔑 API Key Setup</h2>
-        <p style="color: var(--text-dim); margin-bottom: 15px;">
-          Don't need to login? Just add your API key directly:
-        </p>
-        
-        <div class="form-group">
-          <label>Quick API Key</label>
-          <input type="password" id="quickApiKey" placeholder="sk-... or anthropic-...">
-        </div>
-        
-        <button class="btn btn-outline" onclick="saveQuickKey()">Save Key</button>
       </div>
     </div>
     
     <div class="footer">
-      <p>Open Friday v2.0 • <a href="#">Documentation</a> • <a href="#">Support</a></p>
+      <p>Open Friday v2.0 • Made with ❤️ for developers</p>
     </div>
   </div>
   
   <script>
-    // Tab switching
+    // Check auth on load
+    window.onload = function() {
+      checkAuth();
+    };
+    
     function showTab(tabId) {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      
       event.target.classList.add('active');
       document.getElementById(tabId).classList.add('active');
       
-      if (tabId === 'api') loadConfig();
+      if (tabId === 'dashboard' || tabId === 'api') {
+        checkAuth();
+      }
     }
     
-    // Load configuration
-    function loadConfig() {
-      const configPath = '../config.json';
-      fetch(configPath)
-        .then(r => r.json())
-        .then(config => {
-          const html = `
-            <p><strong>Provider:</strong> ${config.provider || 'builtin'}</p>
-            <p><strong>Model:</strong> ${config.model || 'llama3.2:latest'}</p>
-            <p><strong>API URL:</strong> ${config.apiUrl || 'local (ollama)'}</p>
-          `;
-          document.getElementById('currentConfig').innerHTML = html;
-        })
-        .catch(() => {
-          document.getElementById('currentConfig').innerHTML = `
-            <p style="color: var(--warning);">No configuration found.</p>
-            <p style="color: var(--text-dim);">Using built-in GodCoder AI.</p>
-          `;
-        });
-    }
-    
-    // Save API configuration
-    function saveApiConfig() {
-      const provider = document.getElementById('provider').value;
-      const apiKey = document.getElementById('apiKey').value;
-      const model = document.getElementById('modelName').value;
-      const endpoint = document.getElementById('apiEndpoint').value;
+    function checkAuth() {
+      const user = localStorage.getItem('openfriday_user');
+      const isLoggedIn = localStorage.getItem('openfriday_logged_in');
       
-      if (!provider || !apiKey) {
-        showStatus('Please fill in provider and API key', 'error');
+      // Update tabs based on auth
+      if (isLoggedIn === 'true' && user) {
+        const userData = JSON.parse(user);
+        document.getElementById('userInfo').innerHTML = `
+          <div class="user-info">
+            <h3>Welcome, ${userData.name}!</h3>
+            <p>Email: ${userData.email}</p>
+            <p>Logged in at: ${new Date().toLocaleString()}</p>
+          </div>
+        `;
+      } else {
+        // Not logged in - redirect to login
+        if (document.getElementById('dashboard').classList.contains('active') || 
+            document.getElementById('api').classList.contains('active')) {
+          showTab('login');
+          showStatus('loginStatus', 'Please login first', 'error');
+        }
+      }
+    }
+    
+    function showStatus(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.innerHTML = `<div class="status ${type}">${message}</div>`;
+        setTimeout(() => el.innerHTML = '', 3000);
+      }
+    }
+    
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      // Store in localStorage (in real app, validate with server)
+      localStorage.setItem('openfriday_logged_in', 'true');
+      localStorage.setItem('openfriday_user', JSON.stringify({ email, name: email.split('@')[0] }));
+      
+      showStatus('loginStatus', 'Login successful!', 'success');
+      
+      // Also save to CLI auth file
+      fetch('../core/auth.js').then(() => {
+        // The CLI will read from session.json
+      });
+      
+      setTimeout(() => {
+        showTab('dashboard');
+      }, 1000);
+    }
+    
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      
+      // Create account in localStorage
+      const users = JSON.parse(localStorage.getItem('openfriday_users') || '[]');
+      
+      if (users.find(u => u.email === email)) {
+        showStatus('registerStatus', 'Email already exists', 'error');
         return;
       }
       
+      users.push({ name, email, password });
+      localStorage.setItem('openfriday_users', JSON.stringify(users));
+      
+      // Auto login
+      localStorage.setItem('openfriday_logged_in', 'true');
+      localStorage.setItem('openfriday_user', JSON.stringify({ name, email }));
+      
+      showStatus('registerStatus', 'Account created!', 'success');
+      
+      setTimeout(() => {
+        showTab('dashboard');
+      }, 1000);
+    }
+    
+    function logout() {
+      localStorage.removeItem('openfriday_logged_in');
+      localStorage.removeItem('openfriday_user');
+      showStatus('userInfo', 'Logged out successfully', 'success');
+      showTab('login');
+    }
+    
+    let selectedProvider = 'openai';
+    
+    function selectApi(provider) {
+      selectedProvider = provider;
+      document.querySelectorAll('.api-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      event.target.closest('.api-item').classList.add('selected');
+    }
+    
+    function saveApiConfig() {
+      const isLoggedIn = localStorage.getItem('openfriday_logged_in');
+      
+      if (isLoggedIn !== 'true') {
+        showStatus('apiStatus', 'Please login first!', 'error');
+        return;
+      }
+      
+      const apiKey = document.getElementById('apiKey').value;
+      const modelName = document.getElementById('modelName').value;
+      
+      if (!apiKey) {
+        showStatus('apiStatus', 'Please enter an API key', 'error');
+        return;
+      }
+      
+      // Save config
       const config = {
-        provider: provider,
+        provider: selectedProvider,
         apiKey: apiKey,
-        model: model || 'default',
-        apiUrl: endpoint || ''
+        model: modelName || 'default'
       };
       
-      // Save to localStorage (in real app, would save to config.json)
-      localStorage.setItem('openfriday_config', JSON.stringify(config));
-      showStatus('API configuration saved!', 'success');
-    }
-    
-    // Save quick key
-    function saveQuickKey() {
-      const key = document.getElementById('quickApiKey').value;
-      if (!key) {
-        showStatus('Please enter an API key', 'error');
-        return;
-      }
-      
-      localStorage.setItem('openfriday_apikey', key);
-      showStatus('API key saved!', 'success');
-    }
-    
-    // Show status message
-    function showStatus(msg, type) {
-      const statusDiv = document.getElementById('apiStatus');
-      statusDiv.innerHTML = `<div class="status ${type}">${msg}</div>`;
-      setTimeout(() => statusDiv.innerHTML = '', 3000);
-    }
-    
-    // Select API provider
-    function selectApi(provider) {
-      document.getElementById('provider').value = provider;
-      showTab('api');
-    }
-    
-    // Select plan
-    function selectPlan(plan) {
-      alert('Thank you for your interest in ' + plan.toUpperCase() + '!\n\nThis would redirect to payment processing.');
-    }
-    
-    // Login
-    function login() {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      
-      if (!email || !password) {
-        alert('Please enter email and password');
-        return;
-      }
-      
-      alert('Login functionality coming soon!');
+      localStorage.setItem('openfriday_api_config', JSON.stringify(config));
+      showStatus('apiStatus', `Saved! Now using ${selectedProvider}`, 'success');
     }
   </script>
 </body>
