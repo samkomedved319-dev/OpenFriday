@@ -2,6 +2,12 @@
 "use strict";
 // Open Friday v2.0 – Login-First CLI
 
+// Quick version check (must be first)
+if (process.argv[2] === "--version" || process.argv[2] === "-v") {
+  console.log("v2.0");
+  process.exit(0);
+}
+
 const readline = require("readline");
 const fs = require("fs");
 const path = require("path");

@@ -702,6 +702,82 @@
     /* ═══════════════════════════════════════════════
        FOOTER
        ═══════════════════════════════════════════════ */
+    /* ═══ INSTALL SECTION ═══ */
+    .install-section {
+      background: var(--bg-primary);
+      padding: 100px 0;
+    }
+    .install-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .install-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px 28px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    .install-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-4px);
+    }
+    .install-card .os-icon { font-size: 2.5rem; margin-bottom: 16px; }
+    .install-card h4 { font-size: 1.1rem; margin-bottom: 12px; }
+    .install-card .cmd-box {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      text-align: left;
+      line-height: 1.6;
+      word-break: break-all;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .install-card .cmd-box:hover {
+      border-color: var(--accent);
+      background: rgba(0,0,0,0.5);
+    }
+    .install-card .cmd-box .copy-hint {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+    .install-card .cmd-box:hover .copy-hint {
+      color: var(--accent);
+    }
+    .install-card p { color: var(--text-dim); font-size: 0.9rem; margin-top: 12px; }
+    .install-card .step-num {
+      display: inline-flex;
+      width: 28px; height: 28px;
+      background: var(--accent);
+      color: var(--bg-primary);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+    .install-note {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-dim);
+      font-size: 0.95rem;
+    }
+    .install-note a { color: var(--accent); }
+
     footer {
       padding: 80px 0 40px;
       border-top: 1px solid var(--border);
@@ -976,6 +1052,56 @@
     </div>
   </section>
 
+  <!-- ═══ Install Section ═══ -->
+  <section class="install-section">
+    <div class="container">
+      <div class="section-header fade-in">
+        <div class="section-label">Install</div>
+        <h2>One <span class="gradient-text">Command</span> Install</h2>
+        <p class="section-sub">Get Open Friday running in your terminal in seconds.</p>
+      </div>
+
+      <div class="install-grid">
+        <div class="install-card fade-in">
+          <div class="os-icon">🪟</div>
+          <h4>Windows (PowerShell)</h4>
+          <div class="cmd-box" onclick="copyCmd(this)" title="Click to copy">
+            <span class="copy-hint">📋 Copy</span>
+            irm https://samkomedved319-dev.github.io/OpenFriday/install.ps1 | iex
+          </div>
+          <p>One command — downloads, installs, and launches</p>
+        </div>
+
+        <div class="install-card fade-in">
+          <div class="os-icon">🍎</div>
+          <h4>macOS / Linux</h4>
+          <div class="cmd-box" onclick="copyCmd(this)" title="Click to copy">
+            <span class="copy-hint">📋 Copy</span>
+            curl -fsSL https://samkomedved319-dev.github.io/OpenFriday/install.sh | sh
+          </div>
+          <p>One command — downloads, installs, and launches</p>
+        </div>
+
+        <div class="install-card fade-in">
+          <div class="os-icon">📦</div>
+          <h4>Manual (any OS)</h4>
+          <div class="cmd-box" onclick="copyCmd(this)" title="Click to copy">
+            <span class="copy-hint">📋 Copy</span>
+            git clone https://github.com/samkomedved319-dev/OpenFriday.git
+            cd OpenFriday
+            npm link
+            openfriday
+          </div>
+          <p>Requires Git and Node.js</p>
+        </div>
+      </div>
+
+      <div class="install-note">
+        💡 Requires <a href="https://nodejs.org" target="_blank">Node.js</a> v16+ installed on your machine
+      </div>
+    </div>
+  </section>
+
   <!-- ═══ Footer ═══ -->
   <footer>
     <div class="container">
@@ -1138,7 +1264,29 @@
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
     // ═══════════════════════════════════════════════
-    // 6. RECALC CANVAS ON RESIZE
+    // 6. COPY TO CLIPBOARD
+    // ═══════════════════════════════════════════════
+    window.copyCmd = function(el) {
+      const text = el.textContent.replace('📋 Copy', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        const hint = el.querySelector('.copy-hint');
+        const orig = hint.textContent;
+        hint.textContent = '✓ Copied!';
+        setTimeout(() => hint.textContent = orig, 2000);
+      }).catch(() => {
+        // Fallback
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert('Copied!');
+      });
+    };
+
+    // ═══════════════════════════════════════════════
+    // 7. RECALC CANVAS ON RESIZE
     // ═══════════════════════════════════════════════
     window.addEventListener('scroll', () => {
       canvas.height = document.documentElement.scrollHeight;
