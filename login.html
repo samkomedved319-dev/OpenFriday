@@ -140,6 +140,47 @@
     .cli-notice .pulse-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; flex-shrink: 0; }
     .cli-notice p { color: var(--text-dim); font-size: 0.9rem; }
 
+    /* ─── ADMIN DASHBOARD ─── */
+    .admin-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: white; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    .admin-tab { background: linear-gradient(135deg, rgba(245,158,11,0.15) 0%, rgba(239,68,68,0.1) 100%) !important; color: #f59e0b !important; border: 1px solid rgba(245,158,11,0.2) !important; }
+    .admin-tab.active { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%) !important; color: white !important; border-color: transparent !important; }
+    .admin-tab:hover { border-color: rgba(245,158,11,0.4) !important; }
+
+    .user-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .user-table th { text-align: left; padding: 12px 10px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .user-table td { padding: 12px 10px; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; }
+    .user-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .user-table .user-email { color: var(--text); font-weight: 500; }
+    .user-table .user-name { color: var(--text-dim); }
+    .user-table .user-role { display: inline-flex; font-size: 0.75rem; font-weight: 600; padding: 3px 10px; border-radius: 50px; }
+    .role-admin { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .role-tester { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .role-pro { background: rgba(0,212,170,0.15); color: var(--accent); }
+    .role-free { background: rgba(136,136,170,0.15); color: var(--text-dim); }
+    .role-banned { background: rgba(239,68,68,0.1); color: #ef4444; text-decoration: line-through; }
+    .role-timedout { background: rgba(245,158,11,0.1); color: #f59e0b; }
+
+    .action-btns { display: flex; gap: 4px; flex-wrap: wrap; }
+    .action-btn { padding: 4px 10px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+    .action-btn:hover { transform: translateY(-1px); }
+    .action-btn.upgrade { background: rgba(0,212,170,0.15); color: var(--accent); }
+    .action-btn.upgrade:hover { background: rgba(0,212,170,0.3); }
+    .action-btn.tester { background: rgba(245,158,11,0.15); color: #f59e0b; }
+    .action-btn.tester:hover { background: rgba(245,158,11,0.3); }
+    .action-btn.admin { background: rgba(239,68,68,0.15); color: #ef4444; }
+    .action-btn.admin:hover { background: rgba(239,68,68,0.3); }
+    .action-btn.timeout { background: rgba(245,158,11,0.1); color: #f59e0b; }
+    .action-btn.timeout:hover { background: rgba(245,158,11,0.25); }
+    .action-btn.ban { background: rgba(239,68,68,0.1); color: #ef4444; }
+    .action-btn.ban:hover { background: rgba(239,68,68,0.25); }
+    .action-btn.unban { background: rgba(0,212,170,0.15); color: var(--accent); }
+    .action-btn.unban:hover { background: rgba(0,212,170,0.3); }
+
+    .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    .admin-stat { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+    .admin-stat .num { font-size: 1.6rem; font-weight: 800; color: var(--accent); }
+    .admin-stat .label { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+
     .footer { text-align: center; padding: 30px 0; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 20px; }
 
     @media (max-width: 768px) {
@@ -153,6 +194,10 @@
       .btn-row { flex-direction: column; }
       .tabs { overflow-x: auto; }
       .tab { font-size: 0.8rem; padding: 10px 12px; white-space: nowrap; }
+      .admin-stats { grid-template-columns: repeat(2, 1fr); }
+      .user-table { font-size: 0.8rem; }
+      .user-table td, .user-table th { padding: 8px 6px; }
+      .action-btns { flex-direction: column; }
     }
   </style>
 </head>
@@ -199,6 +244,7 @@
       <button class="tab" onclick="showTab('dashboard')">👤 Dashboard</button>
       <button class="tab" onclick="showTab('api')">🔌 API Config</button>
       <button class="tab" onclick="showTab('pricing')">💰 Pricing</button>
+      <button class="tab admin-tab" id="adminTabBtn" onclick="showTab('admin')" style="display:none;">⚡ Admin</button>
     </div>
 
     <!-- ===== LOGIN ===== -->
@@ -290,6 +336,17 @@
           <input type="text" id="modelName" placeholder="e.g., gpt-4, claude-3.5-sonnet">
         </div>
         <button class="btn btn-primary" onclick="saveApiConfig()">Save Configuration</button>
+      </div>
+    </div>
+
+    <!-- ===== ADMIN PANEL ===== -->
+    <div id="admin" class="section">
+      <div class="glass-card">
+        <div class="card-title"><span class="icon">⚡</span> Admin Panel <span class="admin-badge">Admin Only</span></div>
+        <div id="adminStatus"></div>
+        <div id="adminContent">
+          <div class="user-placeholder"><span class="big-icon">🔒</span><p>You don't have admin access.</p></div>
+        </div>
       </div>
     </div>
 
@@ -461,6 +518,143 @@
         setTimeout(() => showTab('dashboard'), 800);
       }
     }
+
+    // ═══ ADMIN SYSTEM ───
+    const ADMIN_EMAIL = 'samkomedved319@gmail.com';
+    const ADMIN_ROLES_KEY = 'openfriday_roles';
+
+    function getRoles() {
+      try { return JSON.parse(localStorage.getItem(ADMIN_ROLES_KEY)) || {}; }
+      catch(e) { return {}; }
+    }
+
+    function saveRoles(roles) {
+      localStorage.setItem(ADMIN_ROLES_KEY, JSON.stringify(roles));
+    }
+
+    function getUserRole(email) {
+      const roles = getRoles();
+      if (email === ADMIN_EMAIL) return 'admin';
+      return roles[email] || 'free';
+    }
+
+    function isAdmin(email) {
+      return email === ADMIN_EMAIL || getUserRole(email) === 'admin';
+    }
+
+    function updateAdminTab() {
+      const btn = document.getElementById('adminTabBtn');
+      const u = localStorage.getItem('openfriday_user');
+      if (u) {
+        const ud = JSON.parse(u);
+        btn.style.display = isAdmin(ud.email) ? 'block' : 'none';
+      } else {
+        btn.style.display = 'none';
+      }
+    }
+
+    function renderAdminPanel() {
+      const u = localStorage.getItem('openfriday_user');
+      if (!u) {
+        document.getElementById('adminContent').innerHTML = '<div class="user-placeholder"><span class="big-icon">🔒</span><p>Login first.</p></div>';
+        return;
+      }
+      const ud = JSON.parse(u);
+      if (!isAdmin(ud.email)) {
+        document.getElementById('adminContent').innerHTML = '<div class="user-placeholder"><span class="big-icon">⛔</span><p>You don\'t have admin access.</p></div>';
+        return;
+      }
+
+      // Collect all users
+      const allEmails = new Set();
+      const users = [];
+      allEmails.add(ud.email);
+      users.push({ email: ud.email, name: ud.name, source: 'current' });
+
+      try {
+        const regs = JSON.parse(localStorage.getItem('openfriday_users') || '[]');
+        regs.forEach(r => {
+          if (!allEmails.has(r.email)) { allEmails.add(r.email); users.push({ email: r.email, name: r.name || r.email.split('@')[0], source: 'registered' }); }
+        });
+      } catch(e) {}
+
+      const roles = getRoles();
+      let totalUsers = users.length, adminCount = 0, testerCount = 0, proCount = 0, bannedCount = 0;
+      users.forEach(u => {
+        const r = getUserRole(u.email);
+        if (r === 'admin' || u.email === ADMIN_EMAIL) adminCount++;
+        if (r === 'tester') testerCount++;
+        if (r === 'banned') bannedCount++;
+        if (r === 'pro') proCount++;
+      });
+
+      let rows = users.map(u => {
+        const role = u.email === ADMIN_EMAIL ? 'admin' : (roles[u.email] || 'free');
+        const rc = role === 'admin' ? 'role-admin' : role === 'tester' ? 'role-tester' : role === 'pro' ? 'role-pro' : role === 'banned' ? 'role-banned' : 'role-free';
+        const rl = role === 'admin' ? 'Admin' : role === 'tester' ? 'Tester' : role === 'pro' ? 'Pro' : role === 'banned' ? 'Banned' : 'Free';
+        const isSelf = u.email === ud.email;
+        let acts = '';
+        if (!isSelf) {
+          if (role === 'banned') {
+            acts += `<button class="action-btn unban" onclick="adminAction('unban','${u.email}')">Unban</button>`;
+          } else {
+            acts += `<button class="action-btn upgrade" onclick="adminAction('upgrade','${u.email}')">Pro</button>`;
+            acts += `<button class="action-btn tester" onclick="adminAction('tester','${u.email}')">Tester</button>`;
+            if (role !== 'admin') acts += `<button class="action-btn admin" onclick="adminAction('makeadmin','${u.email}')">Admin</button>`;
+            acts += `<button class="action-btn timeout" onclick="adminAction('timeout','${u.email}')">Timeout</button>`;
+            acts += `<button class="action-btn ban" onclick="adminAction('ban','${u.email}')">Ban</button>`;
+          }
+        } else {
+          acts = '<span style="color:var(--text-muted);font-size:0.8rem;">You</span>';
+        }
+        return `<tr><td><span class="user-email">${u.email}</span></td><td class="user-name">${u.name}</td><td><span class="user-role ${rc}">${rl}</span></td><td><div class="action-btns">${acts}</div></td></tr>`;
+      }).join('');
+
+      document.getElementById('adminContent').innerHTML = `
+        <div class="admin-stats">
+          <div class="admin-stat"><div class="num">${totalUsers}</div><div class="label">Total</div></div>
+          <div class="admin-stat"><div class="num">${adminCount}</div><div class="label">Admins</div></div>
+          <div class="admin-stat"><div class="num">${testerCount}</div><div class="label">Testers</div></div>
+          <div class="admin-stat"><div class="num">${proCount}</div><div class="label">Pro</div></div>
+        </div>
+        <table class="user-table"><thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Actions</th></tr></thead><tbody>${rows}</tbody></table>
+        <p style="color:var(--text-muted);font-size:0.8rem;text-align:center;">${totalUsers} user(s) • Main admin: samkomedved319@gmail.com</p>`;
+    }
+
+    function adminAction(action, email) {
+      const u = localStorage.getItem('openfriday_user');
+      if (!u) return;
+      const ud = JSON.parse(u);
+      if (!isAdmin(ud.email)) { statusMsg('adminStatus', 'Access denied', 'error'); return; }
+      if (email === ADMIN_EMAIL) { statusMsg('adminStatus', 'Cannot modify main admin', 'error'); return; }
+      const roles = getRoles();
+      const labels = { upgrade: 'upgraded to Pro', tester: 'made Tester', makeadmin: 'made Admin', timeout: 'timed out (10min)', ban: 'banned', unban: 'unbanned' };
+      switch(action) {
+        case 'upgrade': roles[email] = 'pro'; break;
+        case 'tester': roles[email] = 'tester'; break;
+        case 'makeadmin': roles[email] = 'admin'; break;
+        case 'timeout': roles[email] = 'timedout'; setTimeout(() => { const r = getRoles(); delete r[email]; saveRoles(r); renderAdminPanel(); }, 600000); break;
+        case 'ban': roles[email] = 'banned'; break;
+        case 'unban': delete roles[email]; break;
+      }
+      saveRoles(roles);
+      renderAdminPanel();
+      statusMsg('adminStatus', `${email} ${labels[action] || action}`, 'success');
+    }
+
+    // Patch showTab to handle admin
+    const origShowTab = showTab;
+    showTab = function(id) {
+      origShowTab(id);
+      if (id === 'admin') renderAdminPanel();
+    };
+
+    // Patch checkAuth to update admin tab
+    const origCheckAuth = checkAuth;
+    checkAuth = function() {
+      origCheckAuth();
+      updateAdminTab();
+    };
 
     // ═══ LOGOUT ═══
     function logout() {
