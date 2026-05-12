@@ -1,25 +1,247 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Open Friday Web UI</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div class="header">
-      <h1>Open Friday Web UI</h1>
-      <p>Interact with the local AI developer and generate apps, code, and more.</p>
-    </div>
-    <div class="panel" id="panel">
-      <div id="log" class="log"></div>
-      <div class="inputRow">
-        <input id="prompt" placeholder="Describe what you want..."/>
-        <button id="generateBtn">Generate</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Friday - AI Coding Assistant</title>
+  <meta name="description" content="Advanced local AI coding assistant - Like Claude Code in your terminal">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+</head>
+<body>
+  <!-- Hero Section -->
+  <header class="hero">
+    <nav class="navbar">
+      <div class="logo">🤖 Open Friday</div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#commands">Commands</a>
+        <a href="#pricing">Pricing</a>
+        <a href="login.html" class="btn-nav">Dashboard</a>
       </div>
-      <div class="actions">
-        <button id="createApp">Create App</button>
+    </nav>
+    
+    <div class="hero-content">
+      <h1>Your AI Coding Companion</h1>
+      <p class="tagline">Advanced local AI developer assistant - runs in your terminal like Claude Code</p>
+      
+      <div class="terminal-preview">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+        </div>
+        <pre class="terminal-body">$ openfriday
+
+ 🤖 Open Friday v2.0
+ Your Advanced AI Coding Companion
+
+> help
+
+Commands:
+  /generate - Generate code
+  /app      - Create web app
+  /explain  - Explain code
+  /fix      - Fix bugs
+  ...and more!
+
+> create a REST API
+Generating API...
+✓ Created: my-api/</pre>
+      </div>
+      
+      <div class="cta-buttons">
+        <a href="login.html" class="btn btn-primary">Get Started →</a>
+        <a href="#install" class="btn btn-secondary">Installation</a>
       </div>
     </div>
-    <script src="script.js"></script>
-  </body>
-  </html>
+  </header>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <h2>🚀 Why Open Friday?</h2>
+    
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Smart AI</h3>
+        <p>Production-ready code in any language - JavaScript, Python, Go, React, and more</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Local & Fast</h3>
+        <p>Runs offline with built-in AI or connect to Ollama/LM Studio</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔧</div>
+        <h3>Debug & Fix</h3>
+        <p>Smart bug detection, code review, and optimization suggestions</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🏗️</div>
+        <h3>Build Anything</h3>
+        <p>Web apps, APIs, React apps, Python scripts - just describe what you need</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <h3>Learn & Explain</h3>
+        <p>Clear explanations of code concepts, frameworks, and best practices</p>
+      </div>
+      
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3>Private & Secure</h3>
+        <p>Your code stays local. Connect your own API keys if needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Commands Section -->
+  <section id="commands" class="commands">
+    <h2>⌨️ Commands</h2>
+    <p class="section-desc">Powerful slash commands at your fingertips</p>
+    
+    <div class="commands-grid">
+      <div class="command-category">
+        <h3>🔐 Auth</h3>
+        <ul>
+          <li><code>/login</code> - Open dashboard</li>
+          <li><code>/register</code> - Create account</li>
+          <li><code>/profile</code> - Show profile</li>
+          <li><code>/logout</code> - Sign out</li>
+        </ul>
+      </div>
+      
+      <div class="command-category">
+        <h3>💻 Code Generation</h3>
+        <ul>
+          <li><code>/generate</code> - Generate code</li>
+          <li><code>/app</code> - Create web app</li>
+          <li><code>/api</code> - Create REST API</li>
+          <li><code>/react</code> - Create React app</li>
+          <li><code>/python</code> - Python script</li>
+          <li><code>/go</code> - Go program</li>
+        </ul>
+      </div>
+      
+      <div class="command-category">
+        <h3>🧠 Smart Features</h3>
+        <ul>
+          <li><code>/explain</code> - Explain code</li>
+          <li><code>/fix</code> - Fix bugs</li>
+          <li><code>/optimize</code> - Optimize</li>
+          <li><code>/review</code> - Code review</li>
+          <li><code>/test</code> - Generate tests</li>
+          <li><code>/debug</code> - Debug issues</li>
+        </ul>
+      </div>
+      
+      <div class="command-category">
+        <h3>📁 File Operations</h3>
+        <ul>
+          <li><code>/ls</code> - List files</li>
+          <li><code>/cat</code> - Read file</li>
+          <li><code>/mkdir</code> - Create folder</li>
+          <li><code>/touch</code> - Create file</li>
+          <li><code>/rm</code> - Delete</li>
+          <li><code>/find</code> - Find files</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Installation Section -->
+  <section id="install" class="install">
+    <h2>📥 Installation</h2>
+    
+    <div class="install-steps">
+      <div class="step">
+        <div class="step-number">1</div>
+        <h3>Clone the Repository</h3>
+        <pre>git clone https://github.com/yourusername/openfriday.git
+cd openfriday</pre>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">2</div>
+        <h3>Link Globally</h3>
+        <pre>npm link</pre>
+      </div>
+      
+      <div class="step">
+        <div class="step-number">3</div>
+        <h3>Run Open Friday</h3>
+        <pre>openfriday</pre>
+      </div>
+    </div>
+    
+    <div class="install-note">
+      <p>💡 Requires <a href="https://nodejs.org" target="_blank">Node.js</a> installed on your machine</p>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section id="pricing" class="pricing">
+    <h2>💰 Pricing</h2>
+    
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Free</h3>
+        <div class="price">$0<span>/month</span></div>
+        <ul>
+          <li>✓ Built-in GodCoder AI</li>
+          <li>✓ Basic code generation</li>
+          <li>✓ 40+ commands</li>
+          <li>✓ Local operation</li>
+        </ul>
+        <button class="btn btn-outline">Current Plan</button>
+      </div>
+      
+      <div class="price-card featured">
+        <div class="badge">Most Popular</div>
+        <h3>Pro</h3>
+        <div class="price">$9<span>/month</span></div>
+        <ul>
+          <li>✓ All AI providers</li>
+          <li>✓ GPT-4, Claude, Gemini</li>
+          <li>✓ Unlimited generation</li>
+          <li>✓ Priority support</li>
+        </ul>
+        <button class="btn">Upgrade</button>
+      </div>
+      
+      <div class="price-card">
+        <h3>Enterprise</h3>
+        <div class="price">$49<span>/month</span></div>
+        <ul>
+          <li>✓ Custom AI models</li>
+          <li>✓ Team collaboration</li>
+          <li>✓ API access</li>
+          <li>✓ Dedicated support</li>
+        </ul>
+        <button class="btn btn-outline">Contact Us</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">🤖 Open Friday</div>
+      <p>Advanced AI Coding Assistant for Developers</p>
+      <div class="footer-links">
+        <a href="https://github.com">GitHub</a>
+        <a href="#">Documentation</a>
+        <a href="#">Support</a>
+      </div>
+      <p class="copyright">© 2024 Open Friday. MIT License.</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
