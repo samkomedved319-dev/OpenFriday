@@ -3,172 +3,1146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Friday - AI Coding Assistant</title>
-  <meta name="description" content="Advanced local AI coding assistant - Like Claude Code in your terminal">
+  <title>Open Friday - AI Coding Companion</title>
+  <meta name="description" content="Advanced local AI developer assistant - Like Claude Code in your terminal">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* All styles inline for GitHub Pages */
-    :root { --bg-dark: #0a0a0f; --bg-card: #12121a; --accent: #00d4aa; --text: #e8e8ed; --text-dim: #8888a0; --border: #2a2a3a; }
+    /* ═══════════════════════════════════════════════
+       BASE – Premium Dark Theme
+       ═══════════════════════════════════════════════ */
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); line-height: 1.6; }
-    h1 { font-size: 3rem; font-weight: 700; }
-    h2 { font-size: 2.5rem; margin-bottom: 1rem; }
-    a { color: var(--accent); text-decoration: none; }
-    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-    .btn { display: inline-block; padding: 14px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; }
-    .btn-primary { background: var(--accent); color: var(--bg-dark); }
-    .btn-primary:hover { transform: translateY(-2px); }
-    .btn-secondary { background: transparent; border: 2px solid var(--accent); color: var(--accent); margin-left: 15px; }
-    .btn-secondary:hover { background: var(--accent); color: var(--bg-dark); }
 
-    /* Header */
-    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; max-width: 1400px; margin: 0 auto; }
-    .logo { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
-    .nav-links { display: flex; gap: 30px; }
-    .nav-links a { color: var(--text-dim); }
-    .nav-links a:hover { color: var(--text); text-decoration: none; }
-    .btn-nav { background: var(--accent); color: var(--bg-dark); padding: 10px 20px; border-radius: 6px; }
+    :root {
+      --bg-primary: #08080e;
+      --bg-secondary: #0d0d18;
+      --bg-card: #111122;
+      --bg-card-hover: #161630;
+      --bg-glass: rgba(17, 17, 34, 0.7);
+      --accent: #00d4aa;
+      --accent-glow: rgba(0, 212, 170, 0.25);
+      --accent-dim: #009977;
+      --accent-purple: #7c3aed;
+      --accent-blue: #3b82f6;
+      --text: #f1f1f7;
+      --text-dim: #8888aa;
+      --text-muted: #555577;
+      --border: #1e1e35;
+      --border-accent: rgba(0, 212, 170, 0.2);
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 20px;
+      --radius-xl: 24px;
+    }
 
-    /* Hero */
-    .hero { min-height: 90vh; background: linear-gradient(180deg, var(--bg-dark) 0%, #0f0f18 100%); text-align: center; padding: 80px 20px; }
-    .hero h1 { font-size: 4rem; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .tagline { font-size: 1.5rem; color: var(--text-dim); margin-bottom: 50px; }
+    html { scroll-behavior: smooth; }
 
-    /* Terminal */
-    .terminal-preview { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; max-width: 600px; margin: 40px auto; overflow: hidden; }
-    .terminal-header { background: #1a1a25; padding: 12px 16px; display: flex; gap: 8px; }
-    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
-    .dot-red { background: #ff5f56; }.dot-yellow { background: #ffbd2e; }.dot-green { background: #27ca40; }
-    .terminal-body { padding: 20px; text-align: left; font-family: 'Consolas', monospace; font-size: 14px; color: var(--text-dim); }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
 
-    /* Features */
-    .features { padding: 100px 20px; max-width: 1200px; margin: 0 auto; }
-    .features h2 { text-align: center; margin-bottom: 60px; }
-    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
-    .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; transition: all 0.3s; }
-    .feature-card:hover { border-color: var(--accent); transform: translateY(-5px); }
-    .feature-icon { font-size: 40px; margin-bottom: 20px; }
-    .feature-card h3 { color: var(--accent); margin-bottom: 10px; }
-    .feature-card p { color: var(--text-dim); }
+    /* ═══════════════════════════════════════════════
+       SCROLLBAR
+       ═══════════════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-    /* Commands */
-    .commands { padding: 100px 20px; background: var(--bg-card); }
-    .commands h2 { text-align: center; }
-    .commands-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
-    .command-category { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; padding: 25px; }
-    .command-category h3 { color: var(--accent); margin-bottom: 20px; font-size: 1.1rem; }
-    .command-category ul { list-style: none; }
-    .command-category li { padding: 8px 0; color: var(--text-dim); }
-    .command-category code { background: #1a1a25; padding: 4px 10px; border-radius: 4px; color: var(--accent); }
+    /* ═══════════════════════════════════════════════
+       CANVAS – Particle Background
+       ═══════════════════════════════════════════════ */
+    #particles-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
 
-    /* Pricing */
-    .pricing { padding: 100px 20px; background: var(--bg-card); }
-    .pricing h2 { text-align: center; margin-bottom: 60px; }
-    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; }
-    .price-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 40px 30px; text-align: center; }
-    .price-card.featured { border-color: var(--accent); transform: scale(1.05); }
-    .price-card .price { font-size: 3rem; font-weight: 700; color: var(--accent); }
-    .price-card .price span { font-size: 1rem; color: var(--text-dim); }
-    .price-card ul { list-style: none; margin: 30px 0; text-align: left; }
-    .price-card li { padding: 10px 0; color: var(--text-dim); }
-    .price-card li::before { content: '✓ '; color: var(--accent); }
+    /* ═══════════════════════════════════════════════
+       TYPOGRAPHY
+       ═══════════════════════════════════════════════ */
+    h1 { font-size: 4.5rem; font-weight: 900; letter-spacing: -0.04em; line-height: 1.1; }
+    h2 { font-size: 3rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+    h3 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+    a { color: var(--accent); text-decoration: none; transition: color 0.3s; }
+    a:hover { color: var(--accent-dim); }
 
-    /* Footer */
-    footer { padding: 60px 20px; border-top: 1px solid var(--border); text-align: center; }
-    .footer-logo { font-size: 1.5rem; color: var(--accent); margin-bottom: 15px; }
-    .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
-    .copyright { color: var(--text-dim); font-size: 14px; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      background: rgba(0, 212, 170, 0.1);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid var(--border-accent);
+      margin-bottom: 12px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 50%, var(--accent-purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ═══════════════════════════════════════════════
+       CONTAINER
+       ═══════════════════════════════════════════════ */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ═══════════════════════════════════════════════
+       NAVBAR
+       ═══════════════════════════════════════════════ */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid transparent;
+      transition: all 0.4s ease;
+    }
+
+    .navbar.scrolled {
+      background: rgba(8, 8, 14, 0.85);
+      border-color: var(--border);
+      padding: 12px 32px;
+    }
+
+    .nav-logo {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255,255,255,0.05);
+      text-decoration: none;
+    }
+
+    .nav-btn {
+      background: var(--accent) !important;
+      color: var(--bg-primary) !important;
+      font-weight: 700 !important;
+      padding: 10px 20px !important;
+      border-radius: var(--radius-sm) !important;
+      box-shadow: 0 4px 20px var(--accent-glow);
+      transition: all 0.3s !important;
+    }
+
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--accent-glow) !important;
+    }
+
+    .mobile-toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 8px;
+    }
+
+    .mobile-toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    /* ═══════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════ */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 24px 80px;
+      position: relative;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      left: -20%;
+      width: 140%;
+      height: 80%;
+      background: radial-gradient(ellipse at 30% 50%, rgba(0, 212, 170, 0.06) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 80%;
+      height: 60%;
+      background: radial-gradient(ellipse at 70% 50%, rgba(124, 58, 237, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .hero-content { position: relative; z-index: 1; max-width: 850px; }
+
+    .hero h1 { margin-bottom: 20px; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 212, 170, 0.08);
+      border: 1px solid var(--border-accent);
+      padding: 8px 20px;
+      border-radius: 50px;
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin-bottom: 30px;
+      animation: fadeInUp 0.6s ease;
+    }
+
+    .hero-badge .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .tagline {
+      font-size: 1.3rem;
+      color: var(--text-dim);
+      margin-bottom: 40px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.8;
+    }
+
+    /* ═══════════════════════════════════════════════
+       TERMINAL WIDGET
+       ═══════════════════════════════════════════════ */
+    .terminal-widget {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      max-width: 620px;
+      margin: 50px auto;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 80px rgba(0, 212, 170, 0.03);
+      transition: all 0.4s ease;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .terminal-widget:hover {
+      border-color: var(--border-accent);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 100px rgba(0, 212, 170, 0.06);
+      transform: translateY(-4px);
+    }
+
+    .terminal-bar {
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .term-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      transition: all 0.3s;
+    }
+    .term-dot:nth-child(1) { background: #ff5f56; }
+    .term-dot:nth-child(2) { background: #ffbd2e; }
+    .term-dot:nth-child(3) { background: #27ca40; }
+
+    .terminal-widget:hover .term-dot:nth-child(1) { box-shadow: 0 0 8px #ff5f56; }
+    .terminal-widget:hover .term-dot:nth-child(2) { box-shadow: 0 0 8px #ffbd2e; }
+    .terminal-widget:hover .term-dot:nth-child(3) { box-shadow: 0 0 8px #27ca40; }
+
+    .term-title {
+      margin-left: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .term-body {
+      padding: 22px 24px;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+      min-height: 200px;
+    }
+
+    .term-body .prompt { color: var(--accent); }
+    .term-body .cmd { color: var(--text); }
+    .term-body .output { color: var(--text-dim); }
+    .term-body .success { color: #27ca40; }
+    .term-body .comment { color: var(--text-muted); }
+    .cursor-blink {
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background: var(--accent);
+      margin-left: 2px;
+      animation: blink 1s step-end infinite;
+      vertical-align: text-bottom;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       BUTTONS
+       ═══════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: var(--radius);
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dim) 100%);
+      color: var(--bg-primary);
+      box-shadow: 0 4px 24px var(--accent-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 40px var(--accent-glow);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid var(--border);
+      color: var(--text);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* ═══════════════════════════════════════════════
+       FLOATING STATS BAR
+       ═══════════════════════════════════════════════ */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      margin-top: 60px;
+      padding: 20px;
+      animation: fadeInUp 1s ease;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-number {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+
+    .stat-number .accent { color: var(--accent); }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    /* ═══════════════════════════════════════════════
+       SECTION – GENERAL
+       ═══════════════════════════════════════════════ */
+    section {
+      padding: 120px 0;
+      position: relative;
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 70px;
+    }
+
+    .section-sub {
+      color: var(--text-dim);
+      font-size: 1.15rem;
+      max-width: 550px;
+      margin: 0 auto;
+    }
+
+    /* ═══════════════════════════════════════════════
+       FEATURES
+       ═══════════════════════════════════════════════ */
+    .features { background: var(--bg-secondary); }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px 30px;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at 50% 0%, rgba(0, 212, 170, 0.04) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    .feature-card:hover::before { opacity: 1; }
+
+    .feature-card:hover {
+      border-color: var(--border-accent);
+      transform: translateY(-8px) scale(1.01);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .feature-icon {
+      font-size: 2.8rem;
+      margin-bottom: 20px;
+      display: inline-block;
+      position: relative;
+    }
+
+    .feature-card h3 {
+      color: var(--text);
+      margin-bottom: 12px;
+      position: relative;
+    }
+
+    .feature-card p {
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    /* ═══════════════════════════════════════════════
+       COMMANDS
+       ═══════════════════════════════════════════════ */
+    .commands { background: var(--bg-primary); }
+
+    .commands-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .cmd-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .cmd-card:hover {
+      border-color: var(--border-accent);
+      background: var(--bg-card-hover);
+      transform: translateY(-4px);
+    }
+
+    .cmd-card h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+
+    .cmd-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      transition: background 0.2s;
+      cursor: default;
+    }
+
+    .cmd-item:hover { background: rgba(255,255,255,0.03); }
+
+    .cmd-key {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--accent);
+      background: rgba(0, 212, 170, 0.08);
+      padding: 3px 10px;
+      border-radius: 4px;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    .cmd-desc {
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    /* ═══════════════════════════════════════════════
+       PRICING
+       ═══════════════════════════════════════════════ */
+    .pricing { background: var(--bg-secondary); }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 44px 32px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .price-card::before {
+      content: '';
+      position: absolute;
+      top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, rgba(0, 212, 170, 0.03), transparent 50%);
+      animation: rotate 10s linear infinite;
+      opacity: 0;
+      transition: opacity 0.5s;
+    }
+
+    @keyframes rotate { 100% { transform: rotate(360deg); } }
+
+    .price-card:hover::before { opacity: 1; }
+
+    .price-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .price-card.featured {
+      border-color: var(--accent);
+      background: linear-gradient(180deg, rgba(0, 212, 170, 0.06) 0%, var(--bg-card) 100%);
+      transform: scale(1.05);
+    }
+
+    .price-card.featured:hover { transform: scale(1.05) translateY(-8px); }
+
+    .popular-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--accent);
+      color: var(--bg-primary);
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-card h3 {
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-amount {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: -0.04em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-amount span {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+
+    .price-desc {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin: 8px 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-features {
+      list-style: none;
+      margin: 0 0 32px;
+      text-align: left;
+      position: relative;
+      z-index: 1;
+    }
+
+    .price-features li {
+      padding: 10px 0;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .price-features li:last-child { border: none; }
+
+    .price-features li .check {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .price-card .btn {
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ═══════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════ */
+    footer {
+      padding: 80px 0 40px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+
+    .footer-logo { font-size: 1.5rem; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+    .footer-logo span { color: var(--accent); }
+    .footer-tagline { color: var(--text-dim); margin-bottom: 30px; }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-links a {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      transition: color 0.3s;
+    }
+
+    .footer-links a:hover { color: var(--accent); text-decoration: none; }
+
+    .footer-divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 24px;
+    }
+
+    .copyright {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* ═══════════════════════════════════════════════
+       ANIMATIONS
+       ═══════════════════════════════════════════════ */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Floating animation for cards */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    /* ═══════════════════════════════════════════════
+       RESPONSIVE
+       ═══════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .commands-grid { grid-template-columns: repeat(2, 1fr); }
+      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
+    }
 
     @media (max-width: 768px) {
+      h1 { font-size: 2.8rem; }
+      h2 { font-size: 2.2rem; }
+
+      .nav-links { display: none; }
+      .mobile-toggle { display: flex; }
+
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: rgba(8, 8, 14, 0.95);
+        backdrop-filter: blur(20px);
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .feature-grid { grid-template-columns: 1fr; }
+      .commands-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .price-card.featured { transform: none; }
+      .stats-bar { gap: 30px; flex-wrap: wrap; }
+      .stat-number { font-size: 1.6rem; }
       .hero h1 { font-size: 2.5rem; }
-      .tagline { font-size: 1.1rem; }
-      .cta-buttons { display: flex; flex-direction: column; gap: 15px; }
-      .btn-secondary { margin-left: 0; margin-top: 15px; }
+      .tagline { font-size: 1.05rem; }
     }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <nav class="navbar">
-      <div class="logo">🤖 Open Friday</div>
-      <div class="nav-links">
-        <a href="#features">Features</a>
-        <a href="#commands">Commands</a>
-        <a href="#pricing">Pricing</a>
-        <a href="login.html" class="btn-nav">Dashboard</a>
-      </div>
-    </nav>
-    <div class="container">
-      <h1>Your AI Coding Companion</h1>
-      <p class="tagline">Advanced local AI developer assistant - runs in your terminal like Claude Code</p>
-      <div class="terminal-preview">
-        <div class="terminal-header">
-          <span class="terminal-dot dot-red"></span>
-          <span class="terminal-dot dot-yellow"></span>
-          <span class="terminal-dot dot-green"></span>
+
+  <!-- ═══ Particle Canvas ═══ -->
+  <canvas id="particles-canvas"></canvas>
+
+  <!-- ═══ Navbar ═══ -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-logo">🤖 <span>Open</span>Friday</div>
+    <div class="nav-links" id="navLinks">
+      <a href="#features">Features</a>
+      <a href="#commands">Commands</a>
+      <a href="#pricing">Pricing</a>
+      <a href="login.html" class="nav-btn">Dashboard →</a>
+    </div>
+    <button class="mobile-toggle" id="mobileToggle" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ═══ Hero ═══ -->
+  <section class="hero">
+    <div class="hero-content container">
+      <div class="hero-badge"><span class="dot"></span> v2.0 – Now with Custom AI Providers</div>
+      <h1>Your AI<br><span class="gradient-text">Coding Companion</span></h1>
+      <p class="tagline">Advanced local AI developer assistant — runs in your terminal, writes production-grade code, fixes bugs, and helps you build anything.</p>
+      <div class="terminal-widget" id="terminalWidget">
+        <div class="terminal-bar">
+          <span class="term-dot"></span>
+          <span class="term-dot"></span>
+          <span class="term-dot"></span>
+          <span class="term-title">openfriday — bash</span>
         </div>
-        <pre class="terminal-body">$ openfriday
-
- 🤖 Open Friday v2.0
- Your Advanced AI Coding Companion
-
-> /help
-Commands: /generate, /app, /explain, /fix, /review...
-
-> create a REST API
-✓ Created: my-api/server.js
-✓ Created: my-api/package.json</pre>
+        <div class="term-body" id="termBody">
+          <span class="prompt">$</span> <span class="cmd">openfriday</span>
+          <br>
+          <br>
+          <span class="comment">╭─────────────────────────────────╮</span>
+          <br>
+          <span class="comment">│</span>  🤖 Open Friday v2.0            <span class="comment">│</span>
+          <br>
+          <span class="comment">│</span>  Your AI Coding Companion       <span class="comment">│</span>
+          <br>
+          <span class="comment">╰─────────────────────────────────╯</span>
+          <br>
+          <br>
+          <span class="prompt">></span> <span id="typeLine"></span><span class="cursor-blink"></span>
+        </div>
       </div>
       <div class="cta-buttons">
         <a href="login.html" class="btn btn-primary">Get Started →</a>
-        <a href="#install" class="btn btn-secondary">Installation</a>
+        <a href="#features" class="btn btn-secondary">Learn More</a>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-item"><div class="stat-number">40<span class="accent">+</span></div><div class="stat-label">Commands</div></div>
+        <div class="stat-item"><div class="stat-number">8</div><div class="stat-label">AI Providers</div></div>
+        <div class="stat-item"><div class="stat-number">10<span class="accent">+</span></div><div class="stat-label">Languages</div></div>
       </div>
     </div>
-  </header>
+  </section>
 
+  <!-- ═══ Features ═══ -->
   <section id="features" class="features">
     <div class="container">
-      <h2>🚀 Why Open Friday?</h2>
+      <div class="section-header fade-in">
+        <div class="section-label">Features</div>
+        <h2>Why <span class="gradient-text">Open Friday</span>?</h2>
+        <p class="section-sub">Your local AI code assistant that actually delivers production-ready code.</p>
+      </div>
       <div class="feature-grid">
-        <div class="feature-card"><div class="feature-icon">🧠</div><h3>Smart AI</h3><p>Production-ready code in JavaScript, Python, Go, React, and more</p></div>
-        <div class="feature-card"><div class="feature-icon">⚡</div><h3>Local & Fast</h3><p>Runs offline with built-in AI or connect to Ollama/LM Studio</p></div>
-        <div class="feature-card"><div class="feature-icon">🔧</div><h3>Debug & Fix</h3><p>Smart bug detection, code review, and optimization</p></div>
-        <div class="feature-card"><div class="feature-icon">🏗️</div><h3>Build Anything</h3><p>Web apps, APIs, React apps - just describe what you need</p></div>
-        <div class="feature-card"><div class="feature-icon">📖</div><h3>Learn & Explain</h3><p>Clear explanations of code concepts and best practices</p></div>
-        <div class="feature-card"><div class="feature-icon">🔒</div><h3>Private & Secure</h3><p>Your code stays local. Connect your own API keys if needed.</p></div>
+        <div class="feature-card fade-in"><div class="feature-icon">🧠</div><h3>Smart AI</h3><p>Production-ready code in JavaScript, Python, Go, React, TypeScript, and more — just describe what you need.</p></div>
+        <div class="feature-card fade-in"><div class="feature-icon">⚡</div><h3>Local & Fast</h3><p>Runs entirely offline with a built-in GodCoder engine. Or connect to Ollama, LM Studio, OpenAI, Claude, Gemini, and more.</p></div>
+        <div class="feature-card fade-in"><div class="feature-icon">🔧</div><h3>Auto Debug</h3><p>Smart bug detection, one-click fixes, code review, performance optimization — like a senior engineer on demand.</p></div>
+        <div class="feature-card fade-in"><div class="feature-icon">🏗️</div><h3>Full-Stack Builder</h3><p>Describe what you want and get a complete project: web apps, REST APIs, React components, Python scripts, games, and more.</p></div>
+        <div class="feature-card fade-in"><div class="feature-icon">📖</div><h3>Learn & Explain</h3><p>Get clear explanations of any concept, framework, or code snippet. Perfect for learning and onboarding.</p></div>
+        <div class="feature-card fade-in"><div class="feature-icon">🔒</div><h3>Private by Design</h3><p>Your code never leaves your machine. Connect your own API keys and stay in full control.</p></div>
       </div>
     </div>
   </section>
 
+  <!-- ═══ Commands ═══ -->
   <section id="commands" class="commands">
     <div class="container">
-      <h2>⌨️ Commands</h2>
+      <div class="section-header fade-in">
+        <div class="section-label">Commands</div>
+        <h2>Everything at <span class="gradient-text">/</span></h2>
+        <p class="section-sub">Powerful slash commands inspired by Claude Code — fast, minimal, intuitive.</p>
+      </div>
       <div class="commands-grid">
-        <div class="command-category"><h3>🔐 Auth</h3><ul><li><code>/login</code> - Dashboard</li><li><code>/register</code> - Sign up</li><li><code>/profile</code> - Profile</li></ul></div>
-        <div class="command-category"><h3>💻 Code</h3><ul><li><code>/generate</code> - Generate code</li><li><code>/app</code> - Web app</li><li><code>/api</code> - REST API</li><li><code>/react</code> - React app</li></ul></div>
-        <div class="command-category"><h3>🧠 Smart</h3><ul><li><code>/explain</code> - Explain</li><li><code>/fix</code> - Fix bugs</li><li><code>/optimize</code> - Optimize</li><li><code>/review</code> - Review</li></ul></div>
-        <div class="command-category"><h3>📁 Files</h3><ul><li><code>/ls</code> - List files</li><li><code>/cat</code> - Read file</li><li><code>/mkdir</code> - Create folder</li></ul></div>
+        <div class="cmd-card fade-in">
+          <h4>🔐 Auth & System</h4>
+          <div class="cmd-item"><span class="cmd-key">/login</span><span class="cmd-desc">Open dashboard</span></div>
+          <div class="cmd-item"><span class="cmd-key">/register</span><span class="cmd-desc">Create account</span></div>
+          <div class="cmd-item"><span class="cmd-key">/profile</span><span class="cmd-desc">Your profile</span></div>
+          <div class="cmd-item"><span class="cmd-key">/config</span><span class="cmd-desc">API settings</span></div>
+        </div>
+        <div class="cmd-card fade-in">
+          <h4>💻 Code Gen</h4>
+          <div class="cmd-item"><span class="cmd-key">/generate</span><span class="cmd-desc">Generate code</span></div>
+          <div class="cmd-item"><span class="cmd-key">/app</span><span class="cmd-desc">Web app (HTML/CSS/JS)</span></div>
+          <div class="cmd-item"><span class="cmd-key">/api</span><span class="cmd-desc">REST API server</span></div>
+          <div class="cmd-item"><span class="cmd-key">/react</span><span class="cmd-desc">React app</span></div>
+          <div class="cmd-item"><span class="cmd-key">/python</span><span class="cmd-desc">Python script</span></div>
+        </div>
+        <div class="cmd-card fade-in">
+          <h4>🧠 Smart</h4>
+          <div class="cmd-item"><span class="cmd-key">/explain</span><span class="cmd-desc">Explain code</span></div>
+          <div class="cmd-item"><span class="cmd-key">/fix</span><span class="cmd-desc">Fix bugs</span></div>
+          <div class="cmd-item"><span class="cmd-key">/optimize</span><span class="cmd-desc">Optimize</span></div>
+          <div class="cmd-item"><span class="cmd-key">/review</span><span class="cmd-desc">Code review</span></div>
+          <div class="cmd-item"><span class="cmd-key">/test</span><span class="cmd-desc">Generate tests</span></div>
+        </div>
+        <div class="cmd-card fade-in">
+          <h4>📁 Files & Git</h4>
+          <div class="cmd-item"><span class="cmd-key">/ls</span><span class="cmd-desc">List files</span></div>
+          <div class="cmd-item"><span class="cmd-key">/cat</span><span class="cmd-desc">Read file</span></div>
+          <div class="cmd-item"><span class="cmd-key">/mkdir</span><span class="cmd-desc">Create folder</span></div>
+          <div class="cmd-item"><span class="cmd-key">/git</span><span class="cmd-desc">Git commands</span></div>
+          <div class="cmd-item"><span class="cmd-key">/init</span><span class="cmd-desc">Init project</span></div>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- ═══ Pricing ═══ -->
   <section id="pricing" class="pricing">
     <div class="container">
-      <h2>💰 Pricing</h2>
+      <div class="section-header fade-in">
+        <div class="section-label">Pricing</div>
+        <h2>Start Free, Scale Up</h2>
+        <p class="section-sub">All plans include the built-in GodCoder AI. Bring your own API keys for premium providers.</p>
+      </div>
       <div class="pricing-grid">
-        <div class="price-card"><h3>Free</h3><div class="price">$0<span>/mo</span></div><ul><li>✓ Built-in AI</li><li>✓ 40+ commands</li><li>✓ Local operation</li></ul></div>
-        <div class="price-card featured"><h3>Pro</h3><div class="price">$9<span>/mo</span></div><ul><li>✓ GPT-4, Claude</li><li>✓ Unlimited generation</li><li>✓ Priority support</li></ul></div>
-        <div class="price-card"><h3>Enterprise</h3><div class="price">$49<span>/mo</span></div><ul><li>✓ Custom models</li><li>✓ Team access</li><li>✓ API access</li></ul></div>
+        <div class="price-card fade-in">
+          <h3>Free</h3>
+          <div class="price-amount">$0<span>/mo</span></div>
+          <p class="price-desc">Perfect for getting started</p>
+          <ul class="price-features">
+            <li><span class="check">✓</span> Built-in GodCoder AI</li>
+            <li><span class="check">✓</span> 40+ commands</li>
+            <li><span class="check">✓</span> Local operation</li>
+            <li><span class="check">✓</span> File management</li>
+          </ul>
+          <a href="login.html" class="btn btn-secondary">Get Started</a>
+        </div>
+        <div class="price-card featured fade-in">
+          <div class="popular-badge">✦ Most Popular</div>
+          <h3>Pro</h3>
+          <div class="price-amount">$9<span>/mo</span></div>
+          <p class="price-desc">Unlock premium AI models</p>
+          <ul class="price-features">
+            <li><span class="check">✓</span> All AI providers: GPT-4, Claude, Gemini</li>
+            <li><span class="check">✓</span> Unlimited code generation</li>
+            <li><span class="check">✓</span> Priority support</li>
+            <li><span class="check">✓</span> Cloud sync coming soon</li>
+          </ul>
+          <a href="login.html" class="btn btn-primary">Upgrade →</a>
+        </div>
+        <div class="price-card fade-in">
+          <h3>Enterprise</h3>
+          <div class="price-amount">$49<span>/mo</span></div>
+          <p class="price-desc">For teams and power users</p>
+          <ul class="price-features">
+            <li><span class="check">✓</span> Custom AI model integration</li>
+            <li><span class="check">✓</span> Team collaboration</li>
+            <li><span class="check">✓</span> API access</li>
+            <li><span class="check">✓</span> On-premise option</li>
+          </ul>
+          <a href="login.html" class="btn btn-secondary">Contact Us</a>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- ═══ Footer ═══ -->
   <footer>
     <div class="container">
-      <div class="footer-logo">🤖 Open Friday</div>
-      <div class="footer-links"><a href="#">GitHub</a><a href="#">Docs</a><a href="#">Support</a></div>
-      <p class="copyright">© 2024 Open Friday. MIT License.</p>
+      <div class="footer-logo">🤖 <span>Open</span>Friday</div>
+      <p class="footer-tagline">Your Advanced AI Coding Companion</p>
+      <div class="footer-links">
+        <a href="https://github.com">GitHub</a>
+        <a href="#">Documentation</a>
+        <a href="#">Support</a>
+        <a href="login.html">Dashboard</a>
+      </div>
+      <div class="footer-divider"></div>
+      <p class="copyright">© 2024 Open Friday. MIT License. Built with ❤️ for developers.</p>
     </div>
   </footer>
+
+  <script>
+    // ═══════════════════════════════════════════════
+    // 1. PARTICLE BACKGROUND
+    // ═══════════════════════════════════════════════
+    const canvas = document.getElementById('particles-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [], mouseX = 0, mouseY = 0;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = document.documentElement.scrollHeight || window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 0.5;
+        this.speedX = (Math.random() - 0.5) * 0.3;
+        this.speedY = (Math.random() - 0.5) * 0.3;
+        this.opacity = Math.random() * 0.5 + 0.1;
+        this.hue = Math.random() > 0.7 ? 170 : 140; // green/teal tones
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        // Mouse interaction
+        const dx = this.x - mouseX, dy = this.y - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          this.x += dx * 0.01;
+          this.y += dy * 0.01;
+        }
+        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${this.hue}, 70%, 60%, ${this.opacity})`;
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => { p.update(); p.draw(); });
+      // Draw connections
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0, 212, 170, ${0.06 * (1 - dist/120)})`;
+            ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(animateParticles);
+    }
+
+    document.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY + window.scrollY; });
+    animateParticles();
+
+    // ═══════════════════════════════════════════════
+    // 2. TERMINAL TYPING EFFECT
+    // ═══════════════════════════════════════════════
+    const commands = [
+      '/help',
+      '/app my-website',
+      '/generate express api',
+      '/explain async/await',
+      '/fix TypeError',
+      '/react dashboard'
+    ];
+
+    let cmdIndex = 0, charIndex = 0, isDeleting = false;
+    const typeLine = document.getElementById('typeLine');
+
+    function typeEffect() {
+      const current = commands[cmdIndex];
+      if (!isDeleting) {
+        typeLine.textContent = current.substring(0, charIndex + 1);
+        charIndex++;
+        if (charIndex === current.length) {
+          isDeleting = true;
+          setTimeout(typeEffect, 2000);
+          return;
+        }
+        setTimeout(typeEffect, 80 + Math.random() * 40);
+      } else {
+        typeLine.textContent = current.substring(0, charIndex);
+        charIndex--;
+        if (charIndex < 0) {
+          isDeleting = false;
+          charIndex = 0;
+          cmdIndex = (cmdIndex + 1) % commands.length;
+          setTimeout(typeEffect, 300);
+          return;
+        }
+        setTimeout(typeEffect, 40 + Math.random() * 20);
+      }
+    }
+
+    setTimeout(typeEffect, 1000);
+
+    // ═══════════════════════════════════════════════
+    // 3. NAVBAR SCROLL EFFECT
+    // ═══════════════════════════════════════════════
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ═══════════════════════════════════════════════
+    // 4. MOBILE MENU
+    // ═══════════════════════════════════════════════
+    document.getElementById('mobileToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    // ═══════════════════════════════════════════════
+    // 5. SCROLL REVEAL ANIMATIONS
+    // ═══════════════════════════════════════════════
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ═══════════════════════════════════════════════
+    // 6. RECALC CANVAS ON RESIZE
+    // ═══════════════════════════════════════════════
+    window.addEventListener('scroll', () => {
+      canvas.height = document.documentElement.scrollHeight;
+    });
+  </script>
 </body>
 </html>
