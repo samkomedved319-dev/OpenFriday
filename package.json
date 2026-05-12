@@ -2,6 +2,7 @@
   "name": "open-friday",
   "version": "2.0.0",
   "description": "Advanced local AI developer CLI - Claude-like experience",
+  "homepage": "https://samkomedved319-dev.github.io/OpenFriday/",
   "main": "index.js",
   "bin": {
     "openfriday": "./index.js"

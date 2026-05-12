@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Friday - AI Coding Assistant</title>
+  <meta name="description" content="Advanced local AI coding assistant - Like Claude Code in your terminal">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <style>
+    /* All styles inline for GitHub Pages */
+    :root { --bg-dark: #0a0a0f; --bg-card: #12121a; --accent: #00d4aa; --text: #e8e8ed; --text-dim: #8888a0; --border: #2a2a3a; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-dark); color: var(--text); line-height: 1.6; }
+    h1 { font-size: 3rem; font-weight: 700; }
+    h2 { font-size: 2.5rem; margin-bottom: 1rem; }
+    a { color: var(--accent); text-decoration: none; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    .btn { display: inline-block; padding: 14px 30px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s; border: none; }
+    .btn-primary { background: var(--accent); color: var(--bg-dark); }
+    .btn-primary:hover { transform: translateY(-2px); }
+    .btn-secondary { background: transparent; border: 2px solid var(--accent); color: var(--accent); margin-left: 15px; }
+    .btn-secondary:hover { background: var(--accent); color: var(--bg-dark); }
+
+    /* Header */
+    .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; max-width: 1400px; margin: 0 auto; }
+    .logo { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
+    .nav-links { display: flex; gap: 30px; }
+    .nav-links a { color: var(--text-dim); }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .btn-nav { background: var(--accent); color: var(--bg-dark); padding: 10px 20px; border-radius: 6px; }
+
+    /* Hero */
+    .hero { min-height: 90vh; background: linear-gradient(180deg, var(--bg-dark) 0%, #0f0f18 100%); text-align: center; padding: 80px 20px; }
+    .hero h1 { font-size: 4rem; margin-bottom: 20px; background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .tagline { font-size: 1.5rem; color: var(--text-dim); margin-bottom: 50px; }
+
+    /* Terminal */
+    .terminal-preview { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; max-width: 600px; margin: 40px auto; overflow: hidden; }
+    .terminal-header { background: #1a1a25; padding: 12px 16px; display: flex; gap: 8px; }
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }.dot-yellow { background: #ffbd2e; }.dot-green { background: #27ca40; }
+    .terminal-body { padding: 20px; text-align: left; font-family: 'Consolas', monospace; font-size: 14px; color: var(--text-dim); }
+
+    /* Features */
+    .features { padding: 100px 20px; max-width: 1200px; margin: 0 auto; }
+    .features h2 { text-align: center; margin-bottom: 60px; }
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+    .feature-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 30px; transition: all 0.3s; }
+    .feature-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+    .feature-icon { font-size: 40px; margin-bottom: 20px; }
+    .feature-card h3 { color: var(--accent); margin-bottom: 10px; }
+    .feature-card p { color: var(--text-dim); }
+
+    /* Commands */
+    .commands { padding: 100px 20px; background: var(--bg-card); }
+    .commands h2 { text-align: center; }
+    .commands-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; max-width: 1200px; margin: 0 auto; }
+    .command-category { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; padding: 25px; }
+    .command-category h3 { color: var(--accent); margin-bottom: 20px; font-size: 1.1rem; }
+    .command-category ul { list-style: none; }
+    .command-category li { padding: 8px 0; color: var(--text-dim); }
+    .command-category code { background: #1a1a25; padding: 4px 10px; border-radius: 4px; color: var(--accent); }
+
+    /* Pricing */
+    .pricing { padding: 100px 20px; background: var(--bg-card); }
+    .pricing h2 { text-align: center; margin-bottom: 60px; }
+    .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; max-width: 1000px; margin: 0 auto; }
+    .price-card { background: var(--bg-dark); border: 1px solid var(--border); border-radius: 16px; padding: 40px 30px; text-align: center; }
+    .price-card.featured { border-color: var(--accent); transform: scale(1.05); }
+    .price-card .price { font-size: 3rem; font-weight: 700; color: var(--accent); }
+    .price-card .price span { font-size: 1rem; color: var(--text-dim); }
+    .price-card ul { list-style: none; margin: 30px 0; text-align: left; }
+    .price-card li { padding: 10px 0; color: var(--text-dim); }
+    .price-card li::before { content: '✓ '; color: var(--accent); }
+
+    /* Footer */
+    footer { padding: 60px 20px; border-top: 1px solid var(--border); text-align: center; }
+    .footer-logo { font-size: 1.5rem; color: var(--accent); margin-bottom: 15px; }
+    .footer-links { display: flex; justify-content: center; gap: 30px; margin-bottom: 30px; }
+    .copyright { color: var(--text-dim); font-size: 14px; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2.5rem; }
+      .tagline { font-size: 1.1rem; }
+      .cta-buttons { display: flex; flex-direction: column; gap: 15px; }
+      .btn-secondary { margin-left: 0; margin-top: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <nav class="navbar">
+      <div class="logo">🤖 Open Friday</div>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#commands">Commands</a>
+        <a href="#pricing">Pricing</a>
+        <a href="login.html" class="btn-nav">Dashboard</a>
+      </div>
+    </nav>
+    <div class="container">
+      <h1>Your AI Coding Companion</h1>
+      <p class="tagline">Advanced local AI developer assistant - runs in your terminal like Claude Code</p>
+      <div class="terminal-preview">
+        <div class="terminal-header">
+          <span class="terminal-dot dot-red"></span>
+          <span class="terminal-dot dot-yellow"></span>
+          <span class="terminal-dot dot-green"></span>
+        </div>
+        <pre class="terminal-body">$ openfriday
+
+ 🤖 Open Friday v2.0
+ Your Advanced AI Coding Companion
+
+> /help
+Commands: /generate, /app, /explain, /fix, /review...
+
+> create a REST API
+✓ Created: my-api/server.js
+✓ Created: my-api/package.json</pre>
+      </div>
+      <div class="cta-buttons">
+        <a href="login.html" class="btn btn-primary">Get Started →</a>
+        <a href="#install" class="btn btn-secondary">Installation</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="features" class="features">
+    <div class="container">
+      <h2>🚀 Why Open Friday?</h2>
+      <div class="feature-grid">
+        <div class="feature-card"><div class="feature-icon">🧠</div><h3>Smart AI</h3><p>Production-ready code in JavaScript, Python, Go, React, and more</p></div>
+        <div class="feature-card"><div class="feature-icon">⚡</div><h3>Local & Fast</h3><p>Runs offline with built-in AI or connect to Ollama/LM Studio</p></div>
+        <div class="feature-card"><div class="feature-icon">🔧</div><h3>Debug & Fix</h3><p>Smart bug detection, code review, and optimization</p></div>
+        <div class="feature-card"><div class="feature-icon">🏗️</div><h3>Build Anything</h3><p>Web apps, APIs, React apps - just describe what you need</p></div>
+        <div class="feature-card"><div class="feature-icon">📖</div><h3>Learn & Explain</h3><p>Clear explanations of code concepts and best practices</p></div>
+        <div class="feature-card"><div class="feature-icon">🔒</div><h3>Private & Secure</h3><p>Your code stays local. Connect your own API keys if needed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="commands" class="commands">
+    <div class="container">
+      <h2>⌨️ Commands</h2>
+      <div class="commands-grid">
+        <div class="command-category"><h3>🔐 Auth</h3><ul><li><code>/login</code> - Dashboard</li><li><code>/register</code> - Sign up</li><li><code>/profile</code> - Profile</li></ul></div>
+        <div class="command-category"><h3>💻 Code</h3><ul><li><code>/generate</code> - Generate code</li><li><code>/app</code> - Web app</li><li><code>/api</code> - REST API</li><li><code>/react</code> - React app</li></ul></div>
+        <div class="command-category"><h3>🧠 Smart</h3><ul><li><code>/explain</code> - Explain</li><li><code>/fix</code> - Fix bugs</li><li><code>/optimize</code> - Optimize</li><li><code>/review</code> - Review</li></ul></div>
+        <div class="command-category"><h3>📁 Files</h3><ul><li><code>/ls</code> - List files</li><li><code>/cat</code> - Read file</li><li><code>/mkdir</code> - Create folder</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="pricing" class="pricing">
+    <div class="container">
+      <h2>💰 Pricing</h2>
+      <div class="pricing-grid">
+        <div class="price-card"><h3>Free</h3><div class="price">$0<span>/mo</span></div><ul><li>✓ Built-in AI</li><li>✓ 40+ commands</li><li>✓ Local operation</li></ul></div>
+        <div class="price-card featured"><h3>Pro</h3><div class="price">$9<span>/mo</span></div><ul><li>✓ GPT-4, Claude</li><li>✓ Unlimited generation</li><li>✓ Priority support</li></ul></div>
+        <div class="price-card"><h3>Enterprise</h3><div class="price">$49<span>/mo</span></div><ul><li>✓ Custom models</li><li>✓ Team access</li><li>✓ API access</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-logo">🤖 Open Friday</div>
+      <div class="footer-links"><a href="#">GitHub</a><a href="#">Docs</a><a href="#">Support</a></div>
+      <p class="copyright">© 2024 Open Friday. MIT License.</p>
+    </div>
+  </footer>
+</body>
+</html>

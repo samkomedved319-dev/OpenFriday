@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Open Friday - Login & Dashboard</title>
+  <meta name="description" content="Open Friday Dashboard - Login, API Config, and Settings">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Dashboard-specific styles (inline to work without external CSS) */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --bg: #0a0a0f;
+      --bg-card: #12121a;
+      --bg-input: #1a1a25;
+      --accent: #00d4aa;
+      --accent-dim: #00a88a;
+      --text: #e8e8ed;
+      --text-dim: #8888a0;
+      --border: #2a2a3a;
+    }
+    
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .logo {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+    
+    .header h1 {
+      font-size: 32px;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    
+    .header p { color: var(--text-dim); }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    
+    .tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+    
+    .tab:hover { background: var(--bg-card); }
+    
+    .tab.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    /* Sections */
+    .section { display: none; }
+    .section.active { display: block; }
+    
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+    
+    .card h2 {
+      font-size: 20px;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    
+    /* Form */
+    .form-group { margin-bottom: 20px; }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+    
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 16px;
+    }
+    
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 14px 30px;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+    }
+    
+    .btn:hover { background: var(--accent-dim); }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+    }
+    
+    .btn-outline:hover {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    /* Status */
+    .status {
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .status.success {
+      background: rgba(0, 212, 170, 0.1);
+      border: 1px solid var(--accent);
+    }
+    
+    .status.error {
+      background: rgba(255, 68, 102, 0.1);
+      border: 1px solid #ff4466;
+    }
+    
+    /* API List */
+    .api-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .api-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .api-item:hover { border-color: var(--accent); }
+    .api-item.selected { border-color: var(--accent); background: rgba(0,212,170,0.1); }
+    
+    .api-item h3 { font-size: 16px; margin-bottom: 5px; }
+    .api-item p { font-size: 13px; color: var(--text-dim); }
+    
+    /* Pricing */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    
+    .price-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+    }
+    
+    .price-card.featured { border-color: var(--accent); }
+    
+    .price-card h3 { font-size: 20px; margin-bottom: 10px; }
+    .price-card .price { font-size: 32px; color: var(--accent); font-weight: bold; }
+    .price-card .price span { font-size: 14px; color: var(--text-dim); }
+    .price-card ul { list-style: none; margin: 20px 0; text-align: left; }
+    .price-card li { padding: 8px 0; color: var(--text-dim); font-size: 14px; }
+    .price-card li::before { content: "✓"; color: var(--accent); margin-right: 10px; }
+    
+    /* User Info */
+    .user-info {
+      background: var(--bg-input);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .user-info h3 { color: var(--accent); margin-bottom: 10px; }
+    .user-info p { color: var(--text-dim); }
+    
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">🤖</div>
+      <h1>Open Friday</h1>
+      <p>Advanced AI Coding Assistant</p>
+    </div>
+    
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('login')">Login</button>
+      <button class="tab" onclick="showTab('register')">Sign Up</button>
+      <button class="tab" onclick="showTab('dashboard')">Dashboard</button>
+      <button class="tab" onclick="showTab('api')">API Config</button>
+      <button class="tab" onclick="showTab('pricing')">Pricing</button>
+    </div>
+    
+    <!-- Login Section -->
+    <div id="login" class="section active">
+      <div class="card">
+        <h2>🔐 Login to Open Friday</h2>
+        <div id="loginStatus"></div>
+        
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="loginEmail" placeholder="your@email.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" required>
+          </div>
+          
+          <button type="submit" class="btn">Login</button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Register Section -->
+    <div id="register" class="section">
+      <div class="card">
+        <h2>📝 Create Account</h2>
+        <div id="registerStatus"></div>
+        
+        <form onsubmit="handleRegister(event)">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="registerName" placeholder="Your name" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="registerEmail" placeholder="your@email.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="registerPassword" placeholder="Create a password" required>
+          </div>
+          
+          <button type="submit" class="btn">Create Account</button>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Dashboard Section -->
+    <div id="dashboard" class="section">
+      <div class="card">
+        <h2>👤 Your Profile</h2>
+        <div id="userInfo"></div>
+        
+        <button class="btn btn-outline" onclick="logout()">Logout</button>
+      </div>
+      
+      <div class="card">
+        <h2>📊 Quick Stats</h2>
+        <p style="color: var(--text-dim);">Use Open Friday in your terminal:</p>
+        <pre style="background: var(--bg-input); padding: 15px; border-radius: 8px; margin-top: 15px; color: var(--accent);">openfriday</pre>
+      </div>
+    </div>
+    
+    <!-- API Config Section -->
+    <div id="api" class="section">
+      <div class="card">
+        <h2>🔌 Configure AI Providers</h2>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Select your preferred AI model for code generation.</p>
+        
+        <div id="apiStatus"></div>
+        
+        <div class="api-grid">
+          <div class="api-item selected" onclick="selectApi('openai')">
+            <h3>OpenAI</h3>
+            <p>GPT-4, GPT-3.5</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('anthropic')">
+            <h3>Anthropic</h3>
+            <p>Claude 3.5, Claude 3</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('google')">
+            <h3>Google</h3>
+            <p>Gemini Pro, Ultra</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('deepseek')">
+            <h3>DeepSeek</h3>
+            <p>DeepSeek Coder</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('cohere')">
+            <h3>Cohere</h3>
+            <p>Command R</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('ollama')">
+            <h3>Ollama</h3>
+            <p>Local Models</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('lmstudio')">
+            <h3>LM Studio</h3>
+            <p>Local Models</p>
+          </div>
+          
+          <div class="api-item" onclick="selectApi('mistral')">
+            <h3>Mistral</h3>
+            <p>Mistral Large</p>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="apiKey" placeholder="Enter your API key">
+        </div>
+        
+        <div class="form-group">
+          <label>Model (optional)</label>
+          <input type="text" id="modelName" placeholder="e.g., gpt-4, claude-3.5-sonnet">
+        </div>
+        
+        <button class="btn" onclick="saveApiConfig()">Save Configuration</button>
+      </div>
+    </div>
+    
+    <!-- Pricing Section -->
+    <div id="pricing" class="section">
+      <div class="pricing-grid">
+        <div class="price-card">
+          <h3>Free</h3>
+          <div class="price">$0<span>/month</span></div>
+          <ul>
+            <li>Built-in GodCoder AI</li>
+            <li>Basic code generation</li>
+            <li>40+ commands</li>
+            <li>Local operation</li>
+          </ul>
+          <button class="btn btn-outline">Current</button>
+        </div>
+        
+        <div class="price-card featured">
+          <h3>Pro</h3>
+          <div class="price">$9<span>/month</span></div>
+          <ul>
+            <li>All AI providers</li>
+            <li>GPT-4, Claude, Gemini</li>
+            <li>Unlimited generation</li>
+            <li>Priority support</li>
+          </ul>
+          <button class="btn">Upgrade</button>
+        </div>
+        
+        <div class="price-card">
+          <h3>Enterprise</h3>
+          <div class="price">$49<span>/month</span></div>
+          <ul>
+            <li>Custom AI models</li>
+            <li>Team collaboration</li>
+            <li>API access</li>
+            <li>Dedicated support</li>
+          </ul>
+          <button class="btn btn-outline">Contact</button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>Open Friday v2.0 • Made with ❤️ for developers</p>
+    </div>
+  </div>
+  
+  <script>
+    // Check auth on load
+    window.onload = function() {
+      checkAuth();
+    };
+    
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+      
+      if (tabId === 'dashboard' || tabId === 'api') {
+        checkAuth();
+      }
+    }
+    
+    function checkAuth() {
+      const user = localStorage.getItem('openfriday_user');
+      const isLoggedIn = localStorage.getItem('openfriday_logged_in');
+      
+      // Update tabs based on auth
+      if (isLoggedIn === 'true' && user) {
+        const userData = JSON.parse(user);
+        document.getElementById('userInfo').innerHTML = `
+          <div class="user-info">
+            <h3>Welcome, ${userData.name}!</h3>
+            <p>Email: ${userData.email}</p>
+            <p>Logged in at: ${new Date().toLocaleString()}</p>
+          </div>
+        `;
+      } else {
+        // Not logged in - redirect to login
+        if (document.getElementById('dashboard').classList.contains('active') || 
+            document.getElementById('api').classList.contains('active')) {
+          showTab('login');
+          showStatus('loginStatus', 'Please login first', 'error');
+        }
+      }
+    }
+    
+    function showStatus(elementId, message, type) {
+      const el = document.getElementById(elementId);
+      if (el) {
+        el.innerHTML = `<div class="status ${type}">${message}</div>`;
+        setTimeout(() => el.innerHTML = '', 3000);
+      }
+    }
+    
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+      
+      // Store in localStorage (in real app, validate with server)
+      localStorage.setItem('openfriday_logged_in', 'true');
+      localStorage.setItem('openfriday_user', JSON.stringify({ email, name: email.split('@')[0] }));
+      
+      showStatus('loginStatus', 'Login successful!', 'success');
+      
+      // Also save to CLI auth file
+      fetch('../core/auth.js').then(() => {
+        // The CLI will read from session.json
+      });
+      
+      setTimeout(() => {
+        showTab('dashboard');
+      }, 1000);
+    }
+    
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      
+      // Create account in localStorage
+      const users = JSON.parse(localStorage.getItem('openfriday_users') || '[]');
+      
+      if (users.find(u => u.email === email)) {
+        showStatus('registerStatus', 'Email already exists', 'error');
+        return;
+      }
+      
+      users.push({ name, email, password });
+      localStorage.setItem('openfriday_users', JSON.stringify(users));
+      
+      // Auto login
+      localStorage.setItem('openfriday_logged_in', 'true');
+      localStorage.setItem('openfriday_user', JSON.stringify({ name, email }));
+      
+      showStatus('registerStatus', 'Account created!', 'success');
+      
+      setTimeout(() => {
+        showTab('dashboard');
+      }, 1000);
+    }
+    
+    function logout() {
+      localStorage.removeItem('openfriday_logged_in');
+      localStorage.removeItem('openfriday_user');
+      showStatus('userInfo', 'Logged out successfully', 'success');
+      showTab('login');
+    }
+    
+    let selectedProvider = 'openai';
+    
+    function selectApi(provider) {
+      selectedProvider = provider;
+      document.querySelectorAll('.api-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      event.target.closest('.api-item').classList.add('selected');
+    }
+    
+    function saveApiConfig() {
+      const isLoggedIn = localStorage.getItem('openfriday_logged_in');
+      
+      if (isLoggedIn !== 'true') {
+        showStatus('apiStatus', 'Please login first!', 'error');
+        return;
+      }
+      
+      const apiKey = document.getElementById('apiKey').value;
+      const modelName = document.getElementById('modelName').value;
+      
+      if (!apiKey) {
+        showStatus('apiStatus', 'Please enter an API key', 'error');
+        return;
+      }
+      
+      // Save config
+      const config = {
+        provider: selectedProvider,
+        apiKey: apiKey,
+        model: modelName || 'default'
+      };
+      
+      localStorage.setItem('openfriday_api_config', JSON.stringify(config));
+      showStatus('apiStatus', `Saved! Now using ${selectedProvider}`, 'success');
+    }
+  </script>
+</body>
+</html>
