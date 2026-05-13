@@ -429,6 +429,8 @@
       document.getElementById(id).classList.add('active');
       document.querySelector(`.tab[onclick*="${id}"]`).classList.add('active');
       if (id === 'dashboard' || id === 'api') checkAuth();
+      if (id === 'admin') renderAdminPanel();
+      updateAdminTab();
     }
 
     function switchTab(id) {
@@ -439,6 +441,7 @@
     function checkAuth() {
       const li = localStorage.getItem('openfriday_logged_in');
       const u = localStorage.getItem('openfriday_user');
+      updateAdminTab();
       if (li === 'true' && u) {
         const ud = JSON.parse(u);
         document.getElementById('userInfo').innerHTML = `
