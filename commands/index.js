@@ -395,7 +395,7 @@ const commands = [
       if (fs.existsSync(target)) {
         const stat = fs.statSync(target);
         if (stat.isDirectory()) {
-          fs.rmdirSync(target, { recursive: true });
+          fs.rmSync(target, { recursive: true, force: true });
         } else {
           fs.unlinkSync(target);
         }

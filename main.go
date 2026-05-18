@@ -1,32 +1,45 @@
-# Open Friday Generated Python
-# main.go
+// Open Friday — Go App
+package main
 
-import os
-import sys
-from datetime import datetime
-from typing import Dict, Any, List, Optional
+import (
+	"encoding/json"
+	"log"
+	"net/http"
+	"os"
+	"time"
+)
 
-class Application:
-    """Main application controller"""
-    
-    def __init__(self):
-        self.config = self._load_config()
-        self.name = "main.go"
-        print(f"🤖 Open Friday: Initializing {self.name}...")
-    
-    def _load_config(self) -> Dict[str, Any]:
-        """Load application configuration"""
-        return {
-            'environment': os.getenv('APP_ENV', 'development'),
-            'debug': os.getenv('DEBUG', 'false').lower() == 'true',
-            'version': '1.0.0'
-        }
-    
-    def run(self) -> None:
-        """Main application entry point"""
-        print(f"✅ {self.name} running!")
-        print(f"Config: {self.config}")
+type Config struct {
+	Port string
+	Env  string
+}
 
-if __name__ == '__main__':
-    app = Application()
-    app.run()
+func loadConfig() Config {
+	p := os.Getenv("PORT")
+	if p == "" {
+		p = "3000"
+	}
+	e := os.Getenv("APP_ENV")
+	if e == "" {
+		e = "development"
+	}
+	return Config{p, e}
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status":    "ok",
+		"service":   "open-friday",
+		"timestamp": time.Now().UTC(),
+	})
+}
+
+func main() {
+	cfg := loadConfig()
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", healthHandler)
+
+	log.Printf("🚀 Open Friday Go service starting on port %s [%s]", cfg.Port, cfg.Env)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
+}

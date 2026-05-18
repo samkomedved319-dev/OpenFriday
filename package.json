@@ -14,5 +14,7 @@
   "keywords": ["ai", "cli", "developer", "assistant"],
   "author": "Open Friday",
   "license": "MIT",
-  "dependencies": {}
+  "dependencies": {
+    "express": "^4.21.0"
+  }
 }

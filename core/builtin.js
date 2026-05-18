@@ -852,4 +852,19 @@ function interpretCommand(text) {
   return null;
 }
 
-module.exports = { IDENTITY, chat, generateCode, interpretCommand };
+/**
+ * Generate a reply from a conversation history (messages array format).
+ * @param {Array} messages - Array of { role, content } objects
+ * @returns {string} Generated reply text
+ */
+function generateReply(messages) {
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return "Hi! I'm Open Friday. Tell me what you're working on!";
+  }
+  // Extract the last user message and reply via the chat function
+  const lastUserMsg = messages.filter(m => m.role === "user").pop();
+  const text = lastUserMsg ? lastUserMsg.content : messages[messages.length - 1].content;
+  return chat(text);
+}
+
+module.exports = { IDENTITY, chat, generateCode, generateReply, interpretCommand };
