@@ -90,9 +90,9 @@ Open Friday comes with an integrated **Obsidian Vault** as its long-term memory:
 
 ```
 OpenFriday/Memory/
-├── 2026-05-20_14-30-00_User_What-is-the-capital.md
-├── 2026-05-20_14-30-05_AI_The-capital-of-France-is.md
-└── 2026-05-20_14-31-00_project-preferences.md
+├── 2026-05-20_14-30_U_what-capital.md
+├── 2026-05-20_14-30_A_capital-france.md
+└── 2026-05-20_14-31_prefs.md
 ```
 
 ---
