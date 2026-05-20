@@ -21,10 +21,10 @@ const https = require("https");
 const fs = require("fs");
 const path = require("path");
 
-const { loadDotEnv, getProvider, getModel, getOpenRouterApiKey, getOllamaBaseUrl } = require("./env");
-const obsidianMemory = require("./obsidian-memory");
+const { loadDotEnv, getProvider, getModel, getOpenRouterApiKey, getOllamaBaseUrl } = require("../env");
+const obsidianMemory = require("../memory/obsidian");
 
-const HISTORY_PATH = path.join(__dirname, "conversation.json");
+const HISTORY_PATH = path.join(__dirname, "..", "..", "data", "conversation.json");
 
 // Load .env on module init
 loadDotEnv();
@@ -71,7 +71,6 @@ function addToHistory(role, content) {
 
   // Also persist to Obsidian vault as a memory note
   try {
-    const prefix = role === "user" ? "Q" : "A";
     obsidianMemory.saveMemoryNote(role, content);
   } catch {
     // Non-blocking: vault write failures shouldn't break chat
@@ -201,7 +200,6 @@ function openRouterStream(config, body, onChunk, onDone, onError) {
 
     res.on("data", (chunk) => {
       buffer += chunk.toString();
-      // SSE format: data: {...}\n\n
       const parts = buffer.split("\n");
       buffer = parts.pop() || "";
 
@@ -386,11 +384,9 @@ async function checkHealth(config) {
     if (!apiKey || apiKey === "your_openrouter_key_here") {
       return { available: false, provider: "openrouter", error: "API key not configured" };
     }
-    // OpenRouter doesn't have a simple health endpoint, but if key exists we assume it works
     return { available: true, provider: "openrouter", model: config.model };
   }
 
-  // Ollama health check
   return checkOllamaHealth(config);
 }
 
@@ -438,7 +434,6 @@ function checkOllamaHealth(config) {
 
 // ─── System Prompt with Obsidian Memory Context ───
 function getSystemPrompt() {
-  // Load obsidian memory notes to include in the system prompt
   let memoryContext = "";
   try {
     const notes = obsidianMemory.loadAllNotes();
@@ -486,7 +481,6 @@ async function aiChat(message, options = {}) {
   const config = loadConfig();
   const provider = config.provider;
 
-  // Check AI health
   const health = await checkHealth(config);
 
   if (!health.available) {
@@ -505,7 +499,6 @@ async function aiChat(message, options = {}) {
     };
   }
 
-  // Build messages with system prompt, history, and obsidian memory
   const messages = [
     { role: "system", content: getSystemPrompt() },
     ...getContextWindow(options.maxContext || 20),
@@ -541,7 +534,6 @@ async function aiChat(message, options = {}) {
     });
   }
 
-  // Non-streaming mode
   try {
     let response;
     if (provider === "openrouter") {
@@ -552,7 +544,6 @@ async function aiChat(message, options = {}) {
 
     const text = response.message?.content || "";
 
-    // Save to history
     addToHistory("user", message);
     addToHistory("assistant", text);
 
@@ -608,22 +599,15 @@ Requirements: Complete, working, production-ready code.`;
 
 // ─── Public API ───
 module.exports = {
-  // AI Chat
   aiChat,
   aiGenerateCode,
-
-  // Conversation Memory
   loadHistory,
   saveHistory,
   addToHistory,
   getContextWindow,
   clearHistory,
-
-  // Health & Config
   checkOllamaHealth,
   checkHealth,
   loadConfig,
-
-  // System
   getSystemPrompt,
 };

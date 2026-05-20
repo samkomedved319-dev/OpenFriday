@@ -7,7 +7,7 @@ const path = require("path");
 const http = require("http");
 
 const PORT = 3456;
-const SESSION_PATH = path.join(__dirname, "session.json");
+const SESSION_PATH = path.join(__dirname, "..", "..", "data", "session.json");
 
 /**
  * Start the login HTTP server.
@@ -16,7 +16,7 @@ const SESSION_PATH = path.join(__dirname, "session.json");
  */
 function start(rl) {
   return new Promise((resolve) => {
-    const W = path.join(__dirname, "..", "webui");
+    const W = path.join(__dirname, "..", "..", "web");
 
     const server = http.createServer((req, res) => {
       // Handle auth callback from login page

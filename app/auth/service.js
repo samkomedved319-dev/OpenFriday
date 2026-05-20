@@ -2,8 +2,8 @@
 const fs = require("fs");
 const path = require("path");
 
-const DB_PATH = path.join(__dirname, "users.json");
-const SESSION_PATH = path.join(__dirname, "session.json");
+const DB_PATH = path.join(__dirname, "..", "..", "data", "users.json");
+const SESSION_PATH = path.join(__dirname, "..", "..", "data", "session.json");
 
 // Load users from file
 function loadUsers() {

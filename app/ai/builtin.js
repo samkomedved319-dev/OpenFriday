@@ -2,7 +2,7 @@
 // Open Friday v3.0 — Real AI + Smart Fallback
 // ═══════════════════════════════════════════════
 
-const { aiChat, aiGenerateCode, clearHistory, getContextWindow, checkOllamaHealth, loadConfig } = require("./ai");
+const { aiChat, aiGenerateCode, clearHistory, getContextWindow, checkOllamaHealth, loadConfig } = require("./client");
 
 const IDENTITY = {
   name: "Open Friday",

@@ -7,7 +7,7 @@ const {
   DEFAULT_OLLAMA_BASE_URL,
   DEFAULT_BUILTIN_MODEL,
   BUILTIN_MODEL,
-} = require("../utils/constants");
+} = require("../config/constants");
 
 const projectRoot = path.resolve(__dirname, "..");
 const envPath = path.join(projectRoot, ".env");
@@ -51,7 +51,6 @@ function loadDotEnv() {
     const key = line.slice(0, eqIndex).trim();
     const value = line.slice(eqIndex + 1).trim().replace(/^['"]|['"]$/g, "");
     if (!key) continue;
-    // .env should be the local source of truth for this app.
     process.env[key] = value;
   }
 }
@@ -87,7 +86,7 @@ function getOllamaBaseUrl() {
 function getObsidianVaultPath() {
   const customPath = (process.env.OBSIDIAN_VAULT_PATH || "").trim();
   if (customPath) return customPath;
-  return path.join(projectRoot, "OpenFriday");
+  return path.join(projectRoot, "vault");
 }
 
 module.exports = {

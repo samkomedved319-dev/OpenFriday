@@ -20,12 +20,12 @@ const http = require("http");
 const path = require("path");
 const readline = require("readline");
 const { exec } = require("child_process");
-const { IDENTITY, chat, chatSync, generateCode, interpretCommand, clearHistory, checkOllamaHealth } = require("./core/builtin");
-const auth = require("./core/auth");
-const authServer = require("./core/auth-server");
-const obsidianMemory = require("./core/obsidian-memory");
-const { CommandRegistry, CommandContext } = require("./commands/registry");
-const commandDefs = require("./commands/index");
+const { IDENTITY, chat, chatSync, generateCode, interpretCommand, clearHistory, checkOllamaHealth } = require("./app/ai/builtin");
+const auth = require("./app/auth/service");
+const authServer = require("./app/auth/server");
+const obsidianMemory = require("./app/memory/obsidian");
+const { CommandRegistry, CommandContext } = require("./app/commands/registry");
+const commandDefs = require("./app/commands/index");
 
 const PORT = 3456;
 const SESSION_PATH = path.join(__dirname, "core", "session.json");
@@ -236,7 +236,7 @@ async function main() {
       if (result === "SHOW_BANNER") showBanner();
       if (result === "WAIT_LOGIN") {
         log(col("⏳ Waiting for login in browser...","dim") + "\n");
-        const srv = require("./core/auth-server");
+        const srv = require("./app/auth/server");
         const u = await srv.waitForLogin();
         UI.success(`Welcome, ${u.name}!`);
       }

@@ -90,7 +90,7 @@ const commands = [
     handler: async (ctx) => {
       try {
         const PORT = 3456;
-        const srv = require("../core/auth-server");
+        const srv = require("../auth/server");
         const server = await srv.start(ctx.rl);
         exec(`start "" "http://localhost:${PORT}"`);
         respond("Opening browser for login...");
@@ -232,7 +232,7 @@ const commands = [
     handler: async (ctx, args) => {
       if (!args) { console.log("Usage: /agent <goal>"); return; }
       
-      const OpenFridayAgent = require("../core/agent");
+      const OpenFridayAgent = require("../ai/agent");
       const agent = new OpenFridayAgent(ctx, ctx.registry);
       
       UI.header(`Agent Mission: ${args}`);
@@ -688,7 +688,7 @@ const commands = [
     category: "AI",
     aliases: ["status", "model"],
     handler: async () => {
-      const { checkOllamaHealth, loadConfig } = require("../core/ai");
+      const { checkOllamaHealth, loadConfig } = require("../ai/client");
       const config = loadConfig();
       const health = await checkOllamaHealth(config);
       
@@ -717,7 +717,7 @@ const commands = [
     category: "AI",
     aliases: ["clearmemory", "resetchat"],
     handler: async () => {
-      const { clearHistory } = require("../core/ai");
+      const { clearHistory } = require("../ai/client");
       clearHistory();
       console.log("\n✓ Conversation history cleared\n");
     }
@@ -729,7 +729,7 @@ const commands = [
     aliases: ["remember", "vault", "obsidian", "memories"],
     args: { hint: "[list|search|save|summary] [query]" },
     handler: async (ctx, args) => {
-      const obsidianMemory = require("../core/obsidian-memory");
+      const obsidianMemory = require("../memory/obsidian");
       
       if (!args || args === "list" || args === "ls") {
         // List all memory notes
@@ -805,7 +805,7 @@ const commands = [
       
       const fs = require("fs");
       const path = require("path");
-      const configPath = path.join(__dirname, "..", "config.json");
+      const configPath = path.join(__dirname, "..", "..", "config", "settings.json");
       const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
       
       config.model = args;

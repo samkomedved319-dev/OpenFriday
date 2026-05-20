@@ -4,26 +4,6 @@
     "type": "split",
     "children": [
       {
-        "id": "64f87742da43ff14",
-        "type": "tabs",
-        "children": [
-          {
-            "id": "befa14aa4bf60a36",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Welcome.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Welcome"
-            }
-          }
-        ]
-      },
-      {
         "id": "b5a24ed778e5ec50",
         "type": "tabs",
         "children": [
@@ -110,7 +90,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Welcome.md",
+                "file": "create a link.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -120,7 +100,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Welcome"
+              "title": "Backlinks for create a link"
             }
           },
           {
@@ -129,12 +109,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Welcome.md",
+                "file": "create a link.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Welcome"
+              "title": "Outgoing links from create a link"
             }
           },
           {
@@ -172,13 +152,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Welcome.md",
+                "file": "create a link.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Welcome"
+              "title": "Outline of create a link"
             }
           }
         ]
@@ -199,11 +179,15 @@
       "bases:Create new base": false
     }
   },
-  "active": "befa14aa4bf60a36",
+  "active": "d119794b94b66872",
   "lastOpenFiles": [
+    "Memory/2026-05-20_20-35-23_AI_The-capital-of-France-is-Paris.md",
+    "create a link.md",
     "Memory/System-Note-2026-05-20T18-18-20.md",
+    "Memory/AI-Response-2026-05-20T18-32-58.md",
+    "Memory/User-Query-2026-05-20T18-32-58.md",
     "Memory/open-friday-initialization-2026-05-20T18-18-20.md",
-    "Memory",
-    "Welcome.md"
+    "Welcome.md",
+    "Memory"
   ]
 }

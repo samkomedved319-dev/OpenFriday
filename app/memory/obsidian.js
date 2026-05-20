@@ -21,10 +21,10 @@ let _memoryDir = null;
 function getVaultPath() {
   if (!_vaultPath) {
     try {
-      const { getObsidianVaultPath } = require("./env");
+      const { getObsidianVaultPath } = require("../env");
       _vaultPath = getObsidianVaultPath();
     } catch {
-      _vaultPath = path.join(__dirname, "..", "OpenFriday");
+      _vaultPath = path.join(__dirname, "..", "..", "vault");
     }
   }
   return _vaultPath;
