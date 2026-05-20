@@ -3,258 +3,623 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Open Friday — Architecture Graph</title>
+<title>Open Friday — Interactive Architecture</title>
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <style>
+  :root {
+    --bg: #0b1120;
+    --surface: #131c31;
+    --border: #1e2a45;
+    --primary: #6366f1;
+    --primary-dim: #4f46e5;
+    --text: #f1f5f9;
+    --text-dim: #94a3b8;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --radius: 12px;
+  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
-    background: #0f172a;
-    color: #f1f5f9;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    padding: 2rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
   }
-  h1 {
+
+  /* ─── HEADER ─── */
+  header {
+    background: linear-gradient(180deg, #131c31 0%, var(--bg) 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 1.5rem 2rem 1rem;
     text-align: center;
-    font-size: 2.2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  header h1 {
+    font-size: 1.6rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
-    background: linear-gradient(135deg, #f1f5f9, #6366f1);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
   }
-  .subtitle {
-    text-align: center;
-    color: #94a3b8;
-    margin-bottom: 2rem;
-    font-size: 1.1rem;
+  header h1 span { background: linear-gradient(135deg, #f1f5f9, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  header .sub {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
   }
-  .section {
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
+  header .gh-link {
+    display: inline-block;
+    margin-top: 0.5rem;
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: 0.2s;
   }
-  .section h2 {
-    color: #6366f1;
-    font-size: 1.3rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid #334155;
-  }
-  .diagram {
+  header .gh-link:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+  /* ─── TAB NAV ─── */
+  .tabs {
     display: flex;
+    gap: 0.25rem;
     justify-content: center;
+    padding: 0.75rem 1rem;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
     overflow-x: auto;
-    padding: 1rem 0;
+    flex-wrap: nowrap;
   }
-  .diagram svg {
-    max-width: 100%;
-    height: auto;
+  .tab {
+    padding: 0.5rem 1.2rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: 0.15s;
   }
+  .tab:hover { color: var(--text); background: rgba(99,102,241,0.08); }
+  .tab.active { color: #fff; background: var(--primary); border-color: var(--primary-dim); }
+  .tab .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    font-size: 0.65rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 10px;
+    margin-left: 0.3rem;
+    vertical-align: middle;
+  }
+  .tab.active .badge { background: rgba(255,255,255,0.25); }
+
+  /* ─── CONTENT ─── */
+  .tab-content { display: none; padding: 1.5rem 2rem 3rem; max-width: 1400px; margin: 0 auto; }
+  .tab-content.active { display: block; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+  .card-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .card-header h2 { font-size: 1rem; font-weight: 600; color: var(--text); }
+  .card-header .hint { font-size: 0.75rem; color: var(--text-dim); }
+  .card-body { padding: 1.5rem; overflow-x: auto; }
+  .card-body.diagram-wrap { display: flex; justify-content: center; padding: 1rem; }
+  .card-body.diagram-wrap svg { max-width: 100%; height: auto; }
+
+  /* ─── LEGEND ─── */
   .legend {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.2rem;
     justify-content: center;
     flex-wrap: wrap;
-    margin-top: 1rem;
-    padding: 1rem;
-    background: #0f172a;
-    border-radius: 10px;
+    padding: 0.75rem 1rem;
   }
   .legend-item {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.85rem;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--text-dim);
+  }
+  .swatch {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ─── FILE TREE (clickable) ─── */
+  .file-tree {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 0.82rem;
+    line-height: 2;
     color: #cbd5e1;
+    padding: 0.5rem 1rem;
   }
-  .legend-color {
-    width: 16px;
-    height: 16px;
+  .file-tree .dir { color: var(--cyan); font-weight: 600; }
+  .file-tree .file { color: var(--text-dim); }
+  .file-tree a {
+    color: var(--text-dim);
+    text-decoration: none;
+    border-bottom: 1px dotted transparent;
+    transition: 0.15s;
+  }
+  .file-tree a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+  .file-tree .comment { color: #475569; font-style: italic; font-size: 0.75rem; }
+
+  /* ─── SEARCH BAR ─── */
+  .search-bar {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    min-width: 200px;
+  }
+  .search-bar input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-size: 0.82rem;
+    width: 100%;
+  }
+  .search-bar input::placeholder { color: #475569; }
+  .search-bar .kbd {
+    font-size: 0.65rem;
+    color: #475569;
+    border: 1px solid var(--border);
     border-radius: 4px;
+    padding: 0.1rem 0.4rem;
   }
-  .footer {
+
+  /* ─── ENV TABLE ─── */
+  .env-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+  .env-table th {
+    text-align: left;
+    color: var(--text-dim);
+    font-weight: 500;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .env-table td {
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid rgba(30,42,69,0.5);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+  .env-table tr:hover td { background: rgba(99,102,241,0.04); }
+  .env-table .key { color: var(--cyan); }
+  .env-table .val { color: var(--green); }
+  .env-table .desc { color: var(--text-dim); font-family: inherit; font-size: 0.78rem; }
+
+  /* ─── ZOOM CONTROLS ─── */
+  .zoom-controls {
+    display: flex;
+    gap: 0.3rem;
+    align-items: center;
+  }
+  .zoom-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.15s;
+  }
+  .zoom-btn:hover { color: var(--text); border-color: var(--primary); }
+  .zoom-level { font-size: 0.75rem; color: var(--text-dim); min-width: 36px; text-align: center; }
+
+  /* ─── TOOLTIP ─── */
+  .tooltip {
+    position: fixed;
+    background: #1e293b;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    font-size: 0.78rem;
+    color: var(--text);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    max-width: 280px;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip .tt-label { color: var(--primary); font-weight: 600; }
+  .tooltip .tt-desc { color: var(--text-dim); margin-top: 0.2rem; }
+
+  /* ─── FOOTER ─── */
+  footer {
     text-align: center;
-    color: #64748b;
-    font-size: 0.85rem;
-    margin-top: 2rem;
+    color: #334155;
+    font-size: 0.75rem;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
   }
+
+  /* ─── RESPONSIVE ─── */
   @media (max-width: 768px) {
-    body { padding: 1rem; }
-    .section { padding: 1rem; }
+    header { padding: 1rem 1rem 0.75rem; }
+    header h1 { font-size: 1.2rem; }
+    .tab-content { padding: 1rem; }
+    .card-body { padding: 0.75rem; }
+    .tabs { gap: 0.15rem; }
+    .tab { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+    .file-tree { font-size: 0.72rem; }
   }
 </style>
 </head>
 <body>
 
-<h1>⚡ Open Friday</h1>
-<p class="subtitle">Full Architecture — CLI · AI Engine · Obsidian Memory · Agent System</p>
+<!-- ─── HEADER ─── -->
+<header>
+  <h1><span>⚡ Open Friday</span> — Interactive Architecture</h1>
+  <div class="sub">Click any node or file to jump to source · Pan & zoom diagrams · Explore the full system</div>
+  <a class="gh-link" href="https://github.com/samkomedved319-dev/OpenFriday" target="_blank">⎇ View on GitHub</a>
+</header>
 
-<div class="legend">
-  <div class="legend-item"><div class="legend-color" style="background:#6366f1"></div> User / Entry</div>
-  <div class="legend-item"><div class="legend-color" style="background:#1e293b;border:1px solid #6366f1"></div> System Layer</div>
-  <div class="legend-item"><div class="legend-color" style="background:#10b981"></div> AI Response</div>
-  <div class="legend-item"><div class="legend-color" style="background:#f59e0b"></div> Obsidian Vault</div>
-  <div class="legend-item"><div class="legend-color" style="background:#ef4444"></div> Fallback</div>
-</div>
+<!-- ─── TAB NAV ─── -->
+<nav class="tabs" id="tabNav">
+  <button class="tab active" data-tab="overview">📊 System Overview <span class="badge">flowchart</span></button>
+  <button class="tab" data-tab="startup">🚀 Startup <span class="badge">flow</span></button>
+  <button class="tab" data-tab="sequence">🔄 Data Flow <span class="badge">sequence</span></button>
+  <button class="tab" data-tab="files">📁 Files <span class="badge">tree</span></button>
+  <button class="tab" data-tab="config">⚙️ Config <span class="badge">.env</span></button>
+</nav>
 
-<div class="section">
-  <h2>📍 System Overview — Full Flowchart</h2>
-  <div class="diagram">
-    <pre class="mermaid">
+<!-- ─── TOOLTIP ─── -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- TAB 1: SYSTEM OVERVIEW -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="tab-content active" id="tab-overview">
+  <div class="legend">
+    <div class="legend-item"><div class="swatch" style="background:var(--primary)"></div> User / Entry</div>
+    <div class="legend-item"><div class="swatch" style="background:#1e293b;border:1px solid var(--primary)"></div> System Layer</div>
+    <div class="legend-item"><div class="swatch" style="background:var(--green)"></div> AI Response</div>
+    <div class="legend-item"><div class="swatch" style="background:var(--amber)"></div> Obsidian Vault</div>
+    <div class="legend-item"><div class="swatch" style="background:var(--red)"></div> Fallback / Error</div>
+    <div class="legend-item"><div class="swatch" style="background:var(--cyan)"></div> External</div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📍 Full System Flowchart</h2>
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomDiagram('overview-diagram', -0.2)" title="Zoom out">−</button>
+        <span class="zoom-level" id="zoom-level-overview">100%</span>
+        <button class="zoom-btn" onclick="zoomDiagram('overview-diagram', 0.2)" title="Zoom in">+</button>
+        <button class="zoom-btn" onclick="resetZoom('overview-diagram')" title="Reset" style="font-size:0.7rem;">↺</button>
+      </div>
+    </div>
+    <div class="card-body diagram-wrap" id="overview-diagram">
+      <pre class="mermaid">
 flowchart TB
-    User([User]) --> CLI[CLI Interface<br>index.js]
-    
+    User([User<br>You]) --> CLI["CLI Interface<br>index.js"]
+
     subgraph CLI_Layer ["CLI Layer"]
-        CLI --> Auth{Authenticated?}
-        Auth -- No --> Login[Login via Browser<br>localhost:3456]
-        Login --> Session[Session Created<br>core/session.json]
-        Auth -- Yes --> Session
-        Session --> Prompt[OpenFriday ❯ Prompt]
+        CLI --> Auth{"Authenticated?"}
+        Auth -- "No" --> Login["Login via Browser<br>localhost:3456"]
+        Login --> Session["Session Created<br>core/session.json"]
+        Auth -- "Yes" --> Session
+        Session --> Prompt["OpenFriday ❯ Prompt"]
     end
 
     subgraph Command_System ["Command System"]
-        Prompt --> Router{Route Input}
-        Router -- "/command" --> Registry[Command Registry<br>commands/registry.js]
-        Registry --> CmdHandler[Command Handlers<br>commands/index.js]
-        CmdHandler --> CmdResult[Execute & Return]
+        Prompt --> Router{"Route Input"}
+        Router -- "/command" --> Registry["Command Registry<br>commands/registry.js"]
+        Registry --> CmdHandler["Command Handlers<br>commands/index.js"]
+        CmdHandler --> CmdResult["Execute & Return"]
         Router -- "natural language" --> AI_Chat
     end
 
     subgraph AI_Engine ["AI Engine"]
-        AI_Chat[Chat Handler<br>core/builtin.js] --> Provider{Route by<br>AI_PROVIDER}
-        Provider -- "ollama" --> Ollama[Ollama Client<br>core/ai.js]
-        Provider -- "openrouter" --> OpenRouter[OpenRouter Client<br>core/ai.js]
-        Ollama --> OllamaHealth{Health Check<br>/api/tags}
-        OllamaHealth -- "❌ Offline" --> Fallback[Rule-Based Fallback<br>core/builtin.js]
-        OllamaHealth -- "✅ Online" --> AI_Response
-        OpenRouter --> ORHealth{API Key Set?}
-        ORHealth -- "❌ No Key" --> Fallback
-        ORHealth -- "✅ Has Key" --> AI_Response
-        AI_Response[Stream / Non-Stream] --> User
+        AI_Chat["Chat Handler<br>core/builtin.js"] --> Provider{"Route by<br>AI_PROVIDER"}
+        Provider -- "ollama" --> Ollama["Ollama Client<br>core/ai.js"]
+        Provider -- "openrouter" --> OR["OpenRouter Client<br>core/ai.js"]
+        Ollama --> OH{"Health Check<br>/api/tags"}
+        OH -- "❌ Offline" --> FB["Rule-Based Fallback<br>core/builtin.js"]
+        OH -- "✅ Online" --> Resp["AI Response"]
+        OR --> ORK{"API Key Set?"}
+        ORK -- "❌ No Key" --> FB
+        ORK -- "✅ Has Key" --> Resp
+        Resp --> User
     end
 
-    subgraph Memory_System ["Memory System"]
-        Startup[Startup / Login] --> LoadVault[Load Obsidian Vault<br>core/obsidian-memory.js]
-        LoadVault --> Context[Inject Notes as<br>AI System Context]
-        AI_Conversation[AI Conversation] --> SaveNote[Save to Vault<br>YYYY-MM-DD_Desc.md]
-        SaveNote --> Vault[Obsidian Vault<br>OpenFriday/]
-        Vault --> MemoryCmd[/memory command]
-        MemoryCmd --> Search[Full-Text Search]
-        MemoryCmd --> List[List All Notes]
-        MemoryCmd --> SaveStruct[Save Structured Memory]
+    subgraph Mem ["Memory System"]
+        direction TB
+        Startup["Startup / Login"] --> LV["Load Obsidian Vault<br>core/obsidian-memory.js"]
+        LV --> Ctx["Inject Notes as<br>AI System Context"]
+        Conv["AI Conversation"] --> SN["Save to Vault<br>YYYY-MM-DD_Desc.md"]
+        SN --> Vault["Obsidian Vault<br>OpenFriday/"]
+        Vault --> MC["/memory command"]
+        MC --> SR["Full-Text Search"]
+        MC --> LL["List All Notes"]
+        MC --> SS["Save Structured Memory"]
     end
 
-    subgraph Agent_System ["Autonomous Agent"]
-        Agent[/agent command<br>core/agent.js] --> AgentLoop{Sense→Plan→Act→Verify}
-        AgentLoop --> ToolUse[Tool Calls<br>&lt;tool&gt;command&lt;/tool&gt;]
-        ToolUse --> Registry
-        AgentLoop --> AgentResult[Complete / Timeout]
+    subgraph Agent ["Autonomous Agent"]
+        Ag["/agent command<br>core/agent.js"] --> AL{"Sense → Plan<br>→ Act → Verify"}
+        AL --> TU["Tool Calls<br>&lt;tool&gt;command&lt;/tool&gt;"]
+        TU --> Registry
+        AL --> AR["Complete / Timeout"]
     end
 
-    AI_Chat --> Context
-    AI_Conversation --> SaveNote
-    Vault --> Context
+    AI_Chat -.-> Ctx
+    Conv -.-> SN
+    Vault -.-> Ctx
 
-    style User fill:#6366f1,color:#fff,stroke:#4f46e5
+    style User fill:#6366f1,color:#fff,stroke:#4f46e5,stroke-width:2px
     style CLI fill:#1e293b,color:#f1f5f9,stroke:#6366f1
-    style AI_Response fill:#10b981,color:#fff,stroke:#059669
+    style Resp fill:#10b981,color:#fff,stroke:#059669
     style Vault fill:#f59e0b,color:#fff,stroke:#d97706
-    style Fallback fill:#ef4444,color:#fff,stroke:#dc2626
+    style FB fill:#ef4444,color:#fff,stroke:#dc2626
     style Session fill:#334155,color:#f1f5f9
     style Prompt fill:#334155,color:#f1f5f9
-    </pre>
+    style Ctx fill:#06b6d4,color:#fff,stroke:#0891b2
+    style MC fill:#1e293b,color:#f1f5f9,stroke:#f59e0b
+      </pre>
+    </div>
   </div>
 </div>
 
-<div class="section">
-  <h2>🔄 Data Flow — Sequence Diagram</h2>
-  <div class="diagram">
-    <pre class="mermaid">
+<!-- ════════════════════════════════════════════════ -->
+<!-- TAB 2: STARTUP SEQUENCE -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-startup">
+  <div class="card">
+    <div class="card-header">
+      <h2>🚀 What happens when you run <code style="color:var(--primary)">node index.js</code></h2>
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomDiagram('startup-diagram', -0.2)">−</button>
+        <span class="zoom-level" id="zoom-level-startup">100%</span>
+        <button class="zoom-btn" onclick="zoomDiagram('startup-diagram', 0.2)">+</button>
+        <button class="zoom-btn" onclick="resetZoom('startup-diagram')" style="font-size:0.7rem;">↺</button>
+      </div>
+    </div>
+    <div class="card-body diagram-wrap" id="startup-diagram">
+      <pre class="mermaid">
+flowchart LR
+    S["node index.js"] --> B["Show Banner"]
+    B --> CA{"session.json\nexists?"}
+    CA -- "No" --> LS["Start HTTP Server\n:3456"]
+    LS --> W["Open Browser\n→ Wait for Login"]
+    W --> SC["Write session.json"]
+    CA -- "Yes" --> LM["Load Obsidian Vault\ncore/obsidian-memory.js"]
+    SC --> LM
+    LM --> PM["📓 Obsidian Vault: N notes"]
+    PM --> P["Show OpenFriday ❯"]
+    P --> R["Ready for input"]
+
+    style S fill:#6366f1,color:#fff,stroke:#4f46e5,stroke-width:2px
+    style P fill:#1e293b,color:#f1f5f9,stroke:#6366f1
+    style PM fill:#f59e0b,color:#fff,stroke:#d97706
+    style R fill:#10b981,color:#fff,stroke:#059669
+    style LS fill:#06b6d4,color:#fff,stroke:#0891b2
+    style W fill:#334155,color:#f1f5f9
+      </pre>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════ -->
+<!-- TAB 3: DATA FLOW SEQUENCE -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-sequence">
+  <div class="card">
+    <div class="card-header">
+      <h2>🔄 Full request lifecycle — from typing to memory</h2>
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="zoomDiagram('sequence-diagram', -0.2)">−</button>
+        <span class="zoom-level" id="zoom-level-sequence">100%</span>
+        <button class="zoom-btn" onclick="zoomDiagram('sequence-diagram', 0.2)">+</button>
+        <button class="zoom-btn" onclick="resetZoom('sequence-diagram')" style="font-size:0.7rem;">↺</button>
+      </div>
+    </div>
+    <div class="card-body diagram-wrap" id="sequence-diagram">
+      <pre class="mermaid">
 sequenceDiagram
-    participant User as You (User)
+    participant U as You
     participant CLI as CLI (index.js)
     participant AI as AI Engine (core/ai.js)
-    participant Provider as AI Provider<br>(Ollama / OpenRouter)
-    participant Vault as Obsidian Vault Memory
-    
-    User->>CLI: Types a message
+    participant P as AI Provider<br>(Ollama / OpenRouter)
+    participant V as Obsidian Vault
+
+    U->>CLI: Types a message
+    CLI->>CLI: Parse input
+
     alt starts with "/"
-        CLI->>CLI: Route to command handler
-        CLI-->>User: Command result
+        CLI->>CLI: Lookup in Command Registry
+        CLI->>CLI: Execute handler
+        CLI-->>U: Command result
     else natural language
         CLI->>AI: chat(message)
-        AI->>Vault: Load all notes as context
-        Vault-->>AI: Memory context
-        AI->>Provider: Send prompt + memory
-        Provider-->>AI: AI response (streaming)
-        AI-->>User: Typewriter response
-        AI->>Vault: Save conversation as note
-        Note over Vault: 2026-05-20_14-30-00_User_What-is...
-        Note over Vault: 2026-05-20_14-30-05_AI_The-answer-is...
+        AI->>V: Load all .md notes
+        V-->>AI: Memory context
+        Note over AI,V: Injected as system prompt
+        AI->>P: Send prompt + memory + user msg
+        P-->>AI: AI response (streaming)
+        AI-->>U: Typewriter effect
+        AI->>V: Save conversation note
+        Note over V: 2026-05-20_14-30-00_User_What-is...
+        Note over V: 2026-05-20_14-30-05_AI_The-answer-is...
     end
-    </pre>
+      </pre>
+    </div>
   </div>
 </div>
 
-<div class="section">
-  <h2>🚀 Startup Sequence</h2>
-  <div class="diagram">
-    <pre class="mermaid">
-flowchart LR
-    Start[index.js] --> Banner[Show Banner]
-    Banner --> CheckAuth{Session exists?}
-    CheckAuth -- No --> LoginServer[Start HTTP :3456]
-    LoginServer --> Wait[Open browser → wait]
-    Wait --> SessionCreated[Write session.json]
-    CheckAuth -- Yes --> LoadMem[Load Obsidian Vault]
-    SessionCreated --> LoadMem
-    LoadMem --> PrintMem["📓 Obsidian Vault: N notes"]
-    PrintMem --> Prompt[Show prompt]
-
-    style Start fill:#6366f1,color:#fff
-    style Prompt fill:#1e293b,color:#f1f5f9,stroke:#6366f1
-    style PrintMem fill:#f59e0b,color:#fff
-    </pre>
+<!-- ════════════════════════════════════════════════ -->
+<!-- TAB 4: FILE STRUCTURE -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-files">
+  <div class="card">
+    <div class="card-header">
+      <h2>📁 Interactive File Tree</h2>
+      <div class="hint">Click any file to open on GitHub</div>
+    </div>
+    <div class="card-body file-tree" id="fileTree">
+      <span class="dir">openFRIDAY/</span>
+      <br>
+      ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/index.js" target="_blank" title="CLI entry point + readline UI">index.js</a> <span class="comment">// CLI entry point + readline UI</span>
+      <br>
+      ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/.env" target="_blank">.env</a> <span class="comment">// AI_PROVIDER, vault path, API keys</span>
+      <br>
+      ├── <span class="dir">core/</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/ai.js" target="_blank">ai.js</a> <span class="comment">// Multi-provider AI (Ollama + OpenRouter)</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/builtin.js" target="_blank">builtin.js</a> <span class="comment">// Rule-based fallback + intent classifier</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/agent.js" target="_blank">agent.js</a> <span class="comment">// Autonomous coding agent</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/obsidian-memory.js" target="_blank">obsidian-memory.js</a> <span class="comment">// 📓 Vault CRUD (load, save, search)</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/auth.js" target="_blank">auth.js</a> <span class="comment">// User auth system</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/auth-server.js" target="_blank">auth-server.js</a> <span class="comment">// HTTP login server</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/core/env.js" target="_blank">env.js</a> <span class="comment">// .env loader + config accessors</span>
+      <br>
+      │   ├── session.json
+      │   └── conversation.json
+      <br>
+      ├── <span class="dir">commands/</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/commands/index.js" target="_blank">index.js</a> <span class="comment">// All /command definitions</span>
+      <br>
+      │   └── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/commands/registry.js" target="_blank">registry.js</a> <span class="comment">// Command registration + fuzzy search</span>
+      <br>
+      ├── <span class="dir">OpenFriday/</span> <span class="comment">// 📓 Obsidian Vault (AI's memory)</span>
+      <br>
+      │   ├── .obsidian/
+      │   ├── Welcome.md
+      <br>
+      │   └── <span class="dir">Memory/</span> <span class="comment">// Auto-saved conversation notes</span>
+      <br>
+      ├── <span class="dir">docs/</span>
+      <br>
+      │   ├── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/docs/architecture.md" target="_blank">architecture.md</a> <span class="comment">// Mermaid diagrams (GitHub-rendered)</span>
+      <br>
+      │   └── <a href="https://github.com/samkomedved319-dev/OpenFriday/blob/main/docs/graph.html" target="_blank">graph.html</a> <span class="comment">// ← You are here (interactive)</span>
+      <br>
+      ├── <span class="dir">webui/</span> <span class="comment">// Login page assets</span>
+      <br>
+      └── <span class="dir">utils/</span>
+    </div>
   </div>
 </div>
 
-<div class="section">
-  <h2>📁 File Structure</h2>
-  <div class="diagram" style="justify-content:flex-start;font-family:monospace;white-space:pre;font-size:0.85rem;line-height:1.7;color:#cbd5e1;">
-openFRIDAY/
-├── index.js                  CLI entry point + readline UI
-├── .env                      AI_PROVIDER, keys, vault path
-│
-├── core/
-│   ├── ai.js                 Multi-provider AI (Ollama + OpenRouter)
-│   ├── builtin.js            Rule-based fallback, intent classifier
-│   ├── agent.js              Autonomous coding agent
-│   ├── obsidian-memory.js    Obsidian vault CRUD
-│   ├── auth.js               User auth system
-│   └── auth-server.js        HTTP login server
-│
-├── commands/
-│   ├── index.js              All /command definitions
-│   └── registry.js           Command registration + search
-│
-├── OpenFriday/               📓 Obsidian Vault (AI's memory)
-│   └── Memory/               Auto-saved conversation notes
-│
-├── docs/
-│   ├── architecture.md       Mermaid diagrams (GitHub-rendered)
-│   └── graph.html            ← You are here
-│
-└── webui/                    Login page assets
+<!-- ════════════════════════════════════════════════ -->
+<!-- TAB 5: CONFIG -->
+<!-- ════════════════════════════════════════════════ -->
+<div class="tab-content" id="tab-config">
+  <div class="card">
+    <div class="card-header">
+      <h2>⚙️ Environment Configuration (<code>.env</code>)</h2>
+      <div class="hint">All knobs you can turn</div>
+    </div>
+    <div class="card-body" style="padding:0">
+      <table class="env-table">
+        <tr><th>Variable</th><th>Value</th><th>Description</th></tr>
+        <tr>
+          <td class="key">AI_PROVIDER</td>
+          <td class="val">ollama</td>
+          <td class="desc">AI backend: <code>ollama</code> (local), <code>openrouter</code> (cloud), or <code>builtin</code></td>
+        </tr>
+        <tr>
+          <td class="key">OLLAMA_BASE_URL</td>
+          <td class="val">http://127.0.0.1:11434</td>
+          <td class="desc">Ollama server address (used when <code>AI_PROVIDER=ollama</code>)</td>
+        </tr>
+        <tr>
+          <td class="key">OLLAMA_MODEL</td>
+          <td class="val">llama3.2:latest</td>
+          <td class="desc">Model name for Ollama queries</td>
+        </tr>
+        <tr>
+          <td class="key">OPENROUTER_API_KEY</td>
+          <td class="val">sk-...</td>
+          <td class="desc">API key for OpenRouter (optional, uncomment to use cloud models)</td>
+        </tr>
+        <tr>
+          <td class="key">OPENROUTER_MODEL</td>
+          <td class="val">openai/gpt-4o-mini</td>
+          <td class="desc">Model identifier on OpenRouter</td>
+        </tr>
+        <tr>
+          <td class="key">OBSIDIAN_VAULT_PATH</td>
+          <td class="val">(default: ./OpenFriday)</td>
+          <td class="desc">Custom path to your Obsidian vault directory</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📋 Commands Reference</h2>
+      <div class="hint">All /commands available</div>
+    </div>
+    <div class="card-body" style="padding:0">
+      <table class="env-table">
+        <tr><th>Command</th><th>Category</th><th>Description</th></tr>
+        <tr><td class="key">/help</td><td>Core</td><td class="desc">Show all commands</td></tr>
+        <tr><td class="key">/login /logout</td><td>Core</td><td class="desc">Authentication</td></tr>
+        <tr><td class="key">/generate</td><td>Code Gen</td><td class="desc">Generate code from description</td></tr>
+        <tr><td class="key">/app /api /react /python /go /node</td><td>Code Gen</td><td class="desc">Scaffold projects</td></tr>
+        <tr><td class="key">/explain /fix /optimize /review /test</td><td>Smart</td><td class="desc">AI-assisted development</td></tr>
+        <tr><td class="key">/agent</td><td>Smart</td><td class="desc">Autonomous coding agent</td></tr>
+        <tr><td class="key">/memory</td><td>AI</td><td class="desc">Vault: list, search, save, summary</td></tr>
+        <tr><td class="key">/ai</td><td>AI</td><td class="desc">Check AI status + model info</td></tr>
+        <tr><td class="key">/ls /cat /mkdir /touch /rm /find /grep</td><td>Files</td><td class="desc">File operations</td></tr>
+        <tr><td class="key">/run /cd /pwd /ip /ps</td><td>System</td><td class="desc">System commands</td></tr>
+        <tr><td class="key">/git /init /install</td><td>Git</td><td class="desc">Git & project ops</td></tr>
+      </table>
+    </div>
   </div>
 </div>
 
-<div class="footer">
-  Open Friday v3.0 — <a href="https://github.com/samkomedved319-dev/OpenFriday" style="color:#6366f1;">View on GitHub</a>
-</div>
+<footer>
+  Open Friday v3.0 · MIT License · Built with ❤️
+</footer>
 
 <script>
+  // ─── MERMAID INIT ───
   mermaid.initialize({
     startOnLoad: true,
     theme: 'dark',
@@ -265,13 +630,127 @@ openFRIDAY/
       lineColor: '#475569',
       secondaryColor: '#1e293b',
       tertiaryColor: '#0f172a',
-      fontSize: '14px'
+      fontSize: '14px',
+      fontFamily: '"Inter", system-ui, sans-serif',
     },
-    flowchart: {
-      useMaxWidth: true,
-      htmlLabels: true
+    flowchart: { useMaxWidth: true, htmlLabels: true },
+    sequence: { useMaxWidth: true, showSequenceNumbers: false }
+  });
+
+  // ─── TAB SWITCHING ───
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ─── DIAGRAM ZOOM ───
+  function getSvg(containerId) {
+    const wrap = document.getElementById(containerId);
+    return wrap ? wrap.querySelector('svg') : null;
+  }
+
+  function zoomDiagram(containerId, delta) {
+    const svg = getSvg(containerId);
+    if (!svg) return;
+    let scale = parseFloat(svg.getAttribute('data-scale') || '1');
+    scale = Math.max(0.3, Math.min(3, scale + delta));
+    svg.setAttribute('data-scale', scale);
+    svg.style.transform = `scale(${scale})`;
+    svg.style.transformOrigin = 'center top';
+
+    const label = document.getElementById('zoom-level-' + containerId.split('-')[0]);
+    if (label) label.textContent = Math.round(scale * 100) + '%';
+  }
+
+  function resetZoom(containerId) {
+    const svg = getSvg(containerId);
+    if (!svg) return;
+    svg.removeAttribute('data-scale');
+    svg.style.transform = '';
+    const label = document.getElementById('zoom-level-' + containerId.split('-')[0]);
+    if (label) label.textContent = '100%';
+  }
+
+  // ─── MOUSE WHEEL ZOOM ON DIAGRAMS ───
+  document.querySelectorAll('.diagram-wrap').forEach(wrap => {
+    wrap.addEventListener('wheel', (e) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      const containerId = wrap.id;
+      const delta = e.deltaY > 0 ? -0.1 : 0.1;
+      zoomDiagram(containerId, delta);
+    }, { passive: false });
+  });
+
+  // ─── TOOLTIP SYSTEM ───
+  const tooltip = document.getElementById('tooltip');
+  const tooltipData = {
+    'CLI Interface':          { label: 'CLI Interface', desc: 'index.js — readline terminal UI, Ctrl+P palette, Tab complete, ESC interrupt' },
+    'Login via Browser':      { label: 'Login Server', desc: 'core/auth-server.js — HTTP server on :3456, serves login page, writes session.json' },
+    'Command Registry':        { label: 'Command Registry', desc: 'commands/registry.js — fuzzy match, alias resolution, category grouping' },
+    'Command Handlers':        { label: 'Command Handlers', desc: 'commands/index.js — 40+ commands: code gen, files, git, system, AI' },
+    'Chat Handler':            { label: 'Chat Handler', desc: 'core/builtin.js — routes to real AI or rule-based fallback, intent classification' },
+    'Ollama Client':           { label: 'Ollama Client', desc: 'core/ai.js — HTTP client for local Ollama API, health check, streaming support' },
+    'OpenRouter Client':       { label: 'OpenRouter Client', desc: 'core/ai.js — HTTPS client for OpenRouter API via Server-Sent Events' },
+    'Rule-Based Fallback':     { label: 'Rule-Based Fallback', desc: 'core/builtin.js — intent classifier → 30+ response templates, code generators' },
+    'Load Obsidian Vault':     { label: 'Obsidian Memory', desc: 'core/obsidian-memory.js — reads/writes .md notes, full-text search, vault init' },
+    'Save to Vault':           { label: 'Memory Notes', desc: 'Auto-saved as YYYY-MM-DD_HH-MM-SS_Role_Description.md with YAML frontmatter' },
+    'Obsidian Vault':          { label: 'Obsidian Vault', desc: 'OpenFriday/ — Your AI\'s persistent memory. Open in Obsidian to edit/link notes.' },
+    '/memory command':         { label: '/memory Command', desc: 'list (all notes), search <q> (full-text), save <t> <d> (structured), summary (context dump)' },
+    'Autonomous Agent':        { label: 'Agent System', desc: 'core/agent.js — Sense→Plan→Act→Verify loop, tool calls via <tool> tags' },
+  };
+
+  document.addEventListener('mouseover', (e) => {
+    const target = e.target.closest('tspan') || e.target;
+    const text = target.textContent?.trim();
+    if (!text) return;
+
+    for (const [key, data] of Object.entries(tooltipData)) {
+      if (text.includes(key)) {
+        tooltip.innerHTML = `<div class="tt-label">${data.label}</div><div class="tt-desc">${data.desc}</div>`;
+        tooltip.classList.add('show');
+        break;
+      }
     }
   });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!tooltip.classList.contains('show')) return;
+    const x = e.clientX + 14;
+    const y = e.clientY + 14;
+    const maxX = window.innerWidth - tooltip.offsetWidth - 10;
+    const maxY = window.innerHeight - tooltip.offsetHeight - 10;
+    tooltip.style.left = Math.min(x, maxX) + 'px';
+    tooltip.style.top = Math.min(y, maxY) + 'px';
+  });
+
+  document.addEventListener('mouseout', () => {
+    tooltip.classList.remove('show');
+  });
+
+  // ─── KEYBOARD SHORTCUTS ───
+  document.addEventListener('keydown', (e) => {
+    const tabs = document.querySelectorAll('.tab');
+    const num = parseInt(e.key);
+    if (num >= 1 && num <= 5) {
+      e.preventDefault();
+      tabs[num - 1]?.click();
+    }
+    // R to reset all zooms
+    if (e.key === 'r' || e.key === 'R') {
+      ['overview-diagram', 'startup-diagram', 'sequence-diagram'].forEach(id => resetZoom(id));
+    }
+  });
+
+  console.log('⚡ Open Friday Interactive Architecture loaded');
+  console.log('  ⌨  Keys 1-5: switch tabs');
+  console.log('  ⌨  R: reset zoom');
+  console.log('  🖱 Ctrl+Scroll: zoom diagrams');
+  console.log('  🖱 Hover nodes: see tooltips');
 </script>
 </body>
 </html>
