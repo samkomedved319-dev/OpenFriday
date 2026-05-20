@@ -133,5 +133,15 @@
     "role": "assistant",
     "content": "The `README.md` file is located in the `demo` directory.",
     "timestamp": "2026-05-20T17:57:57.668Z"
+  },
+  {
+    "role": "user",
+    "content": "hi",
+    "timestamp": "2026-05-20T18:32:58.258Z"
+  },
+  {
+    "role": "assistant",
+    "content": "Hello! I'm OpenFriday, your AI coding assistant. What's on your mind? Need help with something or just want to chat?",
+    "timestamp": "2026-05-20T18:32:58.262Z"
   }
 ]

@@ -121,19 +121,37 @@ function loadMemoryNotes() {
   return notes;
 }
 
+// ─── Helper: extract a short, safe description from content ───
+// Takes the first ~6 words, strips special characters, truncates to 50 chars
+function makeDescription(text, maxWords = 6, maxChars = 50) {
+  if (!text) return "untitled";
+  const words = text.trim().split(/\s+/).slice(0, maxWords);
+  let desc = words.join("-").replace(/[^a-zA-Z0-9_-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
+  if (desc.length > maxChars) desc = desc.slice(0, maxChars);
+  return desc || "untitled";
+}
+
+// ─── Helper: get formatted timestamp for filenames ───
+function getTimestamp() {
+  const d = new Date();
+  const pad = (n) => n.toString().padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`;
+}
+
 // ─── Save a memory note ───
 // Creates a markdown file in the Memory/ subfolder
+// Filename format: YYYY-MM-DD_HH-MM-SS_Role_Description.md
 // @param {string} role - "user", "assistant", or "system"
 // @param {string} content - The content to remember
-// @param {string} [title] - Optional title for the note
+// @param {string} [title] - Optional title for the note (overrides auto-description)
 // @returns {string} The path to the saved note
 function saveMemoryNote(role, content, title) {
   ensureVault();
 
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const roleLabel = role === "user" ? "User-Query" : role === "assistant" ? "AI-Response" : "System-Note";
-  const noteTitle = title || `${roleLabel}-${timestamp}`;
-  const filename = `${noteTitle}.md`;
+  const ts = getTimestamp();
+  const roleLabel = role === "user" ? "User" : role === "assistant" ? "AI" : "System";
+  const desc = title ? title.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 50) : makeDescription(content);
+  const filename = `${ts}_${roleLabel}_${desc}.md`;
   const filepath = path.join(getMemoryDir(), filename);
 
   // Build markdown content with frontmatter
@@ -141,6 +159,7 @@ function saveMemoryNote(role, content, title) {
 role: ${role}
 created: ${new Date().toISOString()}
 type: memory
+description: ${desc}
 ---
 
 ${content}
@@ -156,14 +175,15 @@ ${content}
 
 // ─── Save a structured "memory" about the user or project ───
 // More semantic than raw conversation - used for important information
+// Filename format: YYYY-MM-DD_HH-MM-SS_Topic.md
 // @param {string} topic - The topic/category of memory
 // @param {string} detail - The information to remember
 function saveStructuredMemory(topic, detail) {
   ensureVault();
 
-  const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase();
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-  const filename = `${safeTopic}-${timestamp}.md`;
+  const ts = getTimestamp();
+  const safeTopic = topic.replace(/[^a-zA-Z0-9_-]/g, "_").toLowerCase().slice(0, 50);
+  const filename = `${ts}_${safeTopic}.md`;
   const filepath = path.join(getMemoryDir(), filename);
 
   const markdown = `---

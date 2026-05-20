@@ -79,6 +79,24 @@ You can also just talk naturally:
 
 ---
 
+## 🧠 Persistent Memory (Obsidian Vault)
+
+Open Friday comes with an integrated **Obsidian Vault** as its long-term memory:
+
+- **Every conversation auto-saves** to `OpenFriday/Memory/` as timestamped markdown notes
+- **On every login**, all vault notes are loaded as AI context — the AI remembers everything across sessions
+- **`/memory` command**: `list`, `search <q>`, `save <topic> <detail>`, `summary`
+- **Open the vault** in [Obsidian](https://obsidian.md) to browse, edit, or link your AI's memories
+
+```
+OpenFriday/Memory/
+├── 2026-05-20_14-30-00_User_What-is-the-capital.md
+├── 2026-05-20_14-30-05_AI_The-capital-of-France-is.md
+└── 2026-05-20_14-31-00_project-preferences.md
+```
+
+---
+
 ## 🔌 AI Providers
 
 Configure via the dashboard or `/config` command:
@@ -116,6 +134,17 @@ Features:
 - API Configuration
 - Profile management
 - Plan selection
+
+---
+
+## 🏗️ Architecture
+
+Full system diagrams in [`docs/architecture.md`](docs/architecture.md) — Mermaid graphs showing:
+- CLI routing flow (commands vs natural language)
+- AI provider system (Ollama / OpenRouter / fallback)
+- Obsidian Vault memory integration
+- Autonomous agent loop
+- Startup and data flow sequences
 
 ---
 
