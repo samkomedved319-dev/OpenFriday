@@ -184,7 +184,7 @@ class CommandRegistry {
 // ─── Context Object ───
 // Passed to every command handler
 class CommandContext {
-  constructor({ currentDir, rl, auth, builtin, fs, path, exec }) {
+  constructor({ currentDir, rl, auth, builtin, fs, path, exec, registry, UI }) {
     this.currentDir = currentDir;
     this.rl = rl;
     this.auth = auth;
@@ -192,6 +192,8 @@ class CommandContext {
     this.fs = fs;
     this.path = path;
     this.exec = exec;
+    this.registry = registry;
+    this.UI = UI;
   }
 }
 

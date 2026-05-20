@@ -221,8 +221,30 @@ const commands = [
   },
 
   // ═══════════════════════════════════════════════
-  // SMART FEATURES
+  // AGENTIC FEATURES
   // ═══════════════════════════════════════════════
+  {
+    name: "agent",
+    description: "Autonomous agent to solve complex coding tasks",
+    category: "Smart",
+    aliases: ["auto", "solve"],
+    args: { required: true, hint: "<goal>" },
+    handler: async (ctx, args) => {
+      if (!args) { console.log("Usage: /agent <goal>"); return; }
+      
+      const OpenFridayAgent = require("../core/agent");
+      const agent = new OpenFridayAgent(ctx, ctx.registry);
+      
+      UI.header(`Agent Mission: ${args}`);
+      const intro = await ctx.builtin.chat("The agent is now analyzing the codebase and planning the solution...");
+      UI.aiBubble(intro);
+      
+      const result = await agent.run(args);
+      
+      UI.success(`Mission ${result.status === "completed" ? "Successful" : "Finished"}`);
+      UI.aiBubble(`Final Result: ${result.finalResponse}`);
+    }
+  },
   {
     name: "explain",
     description: "Explain code or a concept",
@@ -467,10 +489,20 @@ const commands = [
     args: { required: true, hint: "<command>" },
     handler: async (ctx, args) => {
       if (!args) { console.log("Usage: /run <command>"); return; }
-      exec(args, { cwd: ctx.currentDir }, (err, stdout) => {
+      try {
+        const { stdout, stderr } = await new Promise((resolve, reject) => {
+          exec(args, { cwd: ctx.currentDir, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
+            if (err) reject(err);
+            else resolve({ stdout, stderr });
+          });
+        });
         if (stdout) console.log(stdout);
-        if (err) console.log(err.message);
-      });
+        if (stderr) console.error(stderr);
+      } catch (e) {
+        if (e.stdout) console.log(e.stdout);
+        if (e.stderr) console.error(e.stderr);
+        else console.log(e.message);
+      }
     }
   },
   {
@@ -503,9 +535,10 @@ const commands = [
     description: "Show network IP addresses",
     category: "System",
     handler: async () => {
-      require("os").networkInterfaces().forEach(net => {
+      const nets = require("os").networkInterfaces();
+      Object.values(nets).forEach(net => {
         net.forEach(addr => {
-          if (addr.family === "IPv4") console.log("  " + addr.address);
+          if (addr.family === "IPv4" && !addr.internal) console.log("  " + addr.address);
         });
       });
     }
@@ -516,9 +549,17 @@ const commands = [
     category: "System",
     aliases: ["processes", "tasks"],
     handler: async () => {
-      exec("tasklist", (err, stdout) => {
+      try {
+        const { stdout } = await new Promise((resolve, reject) => {
+          exec("tasklist", (err, stdout, stderr) => {
+            if (err) reject(err);
+            else resolve({ stdout, stderr });
+          });
+        });
         if (stdout) stdout.split("\n").slice(0, 15).forEach(l => console.log(l.substring(0, 70)));
-      });
+      } catch (e) {
+        console.log(e.message);
+      }
     }
   },
   {
@@ -558,10 +599,20 @@ const commands = [
     category: "Git",
     args: { hint: "<command>" },
     handler: async (ctx, args) => {
-      exec("git " + (args || "status"), { cwd: ctx.currentDir }, (err, stdout) => {
+      try {
+        const { stdout, stderr } = await new Promise((resolve, reject) => {
+          exec("git " + (args || "status"), { cwd: ctx.currentDir }, (err, stdout, stderr) => {
+            if (err) reject(err);
+            else resolve({ stdout, stderr });
+          });
+        });
         if (stdout) console.log(stdout);
-        if (err) console.log(err.message);
-      });
+        if (stderr) console.error(stderr);
+      } catch (e) {
+        if (e.stdout) console.log(e.stdout);
+        if (e.stderr) console.error(e.stderr);
+        else console.log(e.message);
+      }
     }
   },
   {
@@ -586,11 +637,21 @@ const commands = [
     args: { hint: "[package]" },
     handler: async (ctx, args) => {
       const cmd = args ? `npm install ${args}` : "npm install";
-      exec(cmd, { cwd: ctx.currentDir }, (err, stdout) => {
+      try {
+        const { stdout, stderr } = await new Promise((resolve, reject) => {
+          exec(cmd, { cwd: ctx.currentDir, maxBuffer: 1024 * 1024 }, (err, stdout, stderr) => {
+            if (err) reject(err);
+            else resolve({ stdout, stderr });
+          });
+        });
         if (stdout) console.log(stdout);
-        if (err) console.log(err.message);
-        else console.log("\n✓ Installed");
-      });
+        if (stderr) console.error(stderr);
+        console.log("\n✓ Installed");
+      } catch (e) {
+        if (e.stdout) console.log(e.stdout);
+        if (e.stderr) console.error(e.stderr);
+        else console.log(e.message);
+      }
     }
   },
 
@@ -615,6 +676,142 @@ const commands = [
     handler: async (ctx, args) => {
       const crypto = require("crypto");
       console.log(crypto.createHash("md5").update(args || "").digest("hex"));
+    }
+  },
+
+  // ═══════════════════════════════════════════════
+  // AI MANAGEMENT
+  // ═══════════════════════════════════════════════
+  {
+    name: "ai",
+    description: "Check AI status and model info",
+    category: "AI",
+    aliases: ["status", "model"],
+    handler: async () => {
+      const { checkOllamaHealth, loadConfig } = require("../core/ai");
+      const config = loadConfig();
+      const health = await checkOllamaHealth(config);
+      
+      console.log("");
+      console.log(`  Model: ${config.model}`);
+      console.log(`  URL: ${config.apiUrl}`);
+      console.log(`  Temperature: ${config.temperature}`);
+      console.log(`  Max Tokens: ${config.maxTokens}`);
+      console.log("");
+      
+      if (health.available) {
+        console.log(`  Status: ${"✓ Online"}`);
+        console.log(`  Models: ${health.modelCount} available`);
+        if (health.models.length > 0) {
+          console.log(`  Available: ${health.models.join(", ")}`);
+        }
+      } else {
+        console.log(`  Status: ${"✗ Offline"} — using rule-based fallback`);
+      }
+      console.log("");
+    }
+  },
+  {
+    name: "clearhistory",
+    description: "Clear AI conversation history",
+    category: "AI",
+    aliases: ["clearmemory", "resetchat"],
+    handler: async () => {
+      const { clearHistory } = require("../core/ai");
+      clearHistory();
+      console.log("\n✓ Conversation history cleared\n");
+    }
+  },
+  {
+    name: "memory",
+    description: "View, search, or manage Obsidian vault memory",
+    category: "AI",
+    aliases: ["remember", "vault", "obsidian", "memories"],
+    args: { hint: "[list|search|save|summary] [query]" },
+    handler: async (ctx, args) => {
+      const obsidianMemory = require("../core/obsidian-memory");
+      
+      if (!args || args === "list" || args === "ls") {
+        // List all memory notes
+        const summary = obsidianMemory.getVaultSummary();
+        console.log(`\n  📓 Obsidian Vault: ${summary.vaultPath}\n`);
+        console.log(`  Total Notes: ${summary.totalNotes}`);
+        console.log(`  Memory Notes: ${summary.memoryNotes}\n`);
+        if (summary.notes.length > 0) {
+          console.log("  Notes:");
+          summary.notes.forEach(n => {
+            console.log(`    📄 ${n.name} (${n.size} chars) — ${n.path}`);
+          });
+          console.log("");
+        }
+        return;
+      }
+      
+      if (args.startsWith("search ")) {
+        const query = args.slice(7).trim();
+        if (!query) { console.log("Usage: /memory search <query>"); return; }
+        const results = obsidianMemory.searchVault(query);
+        if (results.length === 0) {
+          console.log(`\n  No results for "${query}"\n`);
+        } else {
+          console.log(`\n  🔍 Results for "${query}":\n`);
+          results.slice(0, 10).forEach(r => {
+            console.log(`  📄 ${r.path}`);
+            console.log(`     ...${r.context}...\n`);
+          });
+        }
+        return;
+      }
+      
+      if (args.startsWith("save ")) {
+        const parts = args.slice(5).trim().split(" ");
+        const topic = parts[0];
+        const detail = parts.slice(1).join(" ") || topic;
+        if (!topic) { console.log("Usage: /memory save <topic> [detail]"); return; }
+        const saved = obsidianMemory.saveStructuredMemory(topic, detail);
+        if (saved) {
+          console.log(`\n✓ Memory saved: ${saved}\n`);
+        }
+        return;
+      }
+      
+      if (args === "summary") {
+        const ctxStr = obsidianMemory.getMemoryContextString();
+        if (ctxStr) {
+          console.log(ctxStr);
+        } else {
+          console.log("\n  No memory notes found\n");
+        }
+        return;
+      }
+      
+      // Default: show summary
+      const summary = obsidianMemory.getVaultSummary();
+      console.log(`\n  📓 Obsidian Vault: ${summary.totalNotes} notes, ${summary.memoryNotes} memories\n`);
+      console.log(`  Use /memory list      — List all notes`);
+      console.log(`  Use /memory search <q> — Search memory`);
+      console.log(`  Use /memory save <t> <d> — Save a memory`);
+      console.log(`  Use /memory summary   — Show memory context\n`);
+    }
+  },
+  {
+    name: "setmodel",
+    description: "Change the AI model",
+    category: "AI",
+    aliases: ["model"],
+    args: { required: true, hint: "<model-name>" },
+    handler: async (ctx, args) => {
+      if (!args) { console.log("\nUsage: /setmodel <model-name>\n"); return; }
+      
+      const fs = require("fs");
+      const path = require("path");
+      const configPath = path.join(__dirname, "..", "config.json");
+      const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      
+      config.model = args;
+      fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+      
+      console.log(`\n✓ Model changed to: ${args}\n`);
     }
   }
 ];

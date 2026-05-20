@@ -1,7 +1,7 @@
 {
   "name": "open-friday",
-  "version": "2.0.0",
-  "description": "Advanced local AI developer CLI - Claude-like experience",
+  "version": "3.0.0",
+  "description": "Advanced local AI developer CLI — Real AI via Ollama",
   "homepage": "https://samkomedved319-dev.github.io/OpenFriday/",
   "main": "index.js",
   "bin": {
@@ -11,10 +11,8 @@
     "start": "node index.js",
     "link": "npm link"
   },
-  "keywords": ["ai", "cli", "developer", "assistant"],
+  "keywords": ["ai", "cli", "developer", "assistant", "ollama", "local-ai"],
   "author": "Open Friday",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.21.0"
-  }
+  "dependencies": {}
 }

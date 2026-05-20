@@ -1,11 +1,13 @@
 // ═══════════════════════════════════════════════
-// Open Friday v2.0 — Ultra-Smart AI & Best Coder
+// Open Friday v3.0 — Real AI + Smart Fallback
 // ═══════════════════════════════════════════════
+
+const { aiChat, aiGenerateCode, clearHistory, getContextWindow, checkOllamaHealth, loadConfig } = require("./ai");
 
 const IDENTITY = {
   name: "Open Friday",
-  version: "v2.0",
-  tagline: "Smarter Than Your Average AI",
+  version: "v3.0",
+  tagline: "Powered by Real AI — Local & Private",
   icon: `
     ██████╗ ███████╗ ██████╗ ██████╗     ██████╗  █████╗ ███████╗ █████╗ ███████╗
    ██╔════╝ ██╔════╝██╔═══██╗██╔══██╗    ██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔════╝
@@ -319,16 +321,52 @@ function generateResponse(intent, message) {
 // PUBLIC API
 // ═══════════════════════════════════════════════
 
-function chat(message, context = []) {
+async function chat(message, options = {}) {
+  const { stream = false, onChunk = null, onDone = null, onError = null } = options;
+
+  if (!message || message.trim().length === 0) {
+    return "Hi! I'm Open Friday v3.0 — powered by real AI. Tell me what you're working on!";
+  }
+
+  // Try real AI first
+  try {
+    const result = await aiChat(message.trim(), { stream, onChunk, onDone, onError });
+
+    if (result.mode === "ai" && result.text) {
+      return result.text;
+    }
+
+    // AI unavailable — fall back to rule-based
+    if (result.mode === "fallback") {
+      const intent = classifyIntent(message);
+      return generateResponse(intent, message.trim());
+    }
+  } catch {
+    // AI failed — fall back to rule-based
+    const intent = classifyIntent(message);
+    return generateResponse(intent, message.trim());
+  }
+}
+
+// Sync wrapper for backward compatibility (uses rule-based only)
+function chatSync(message) {
   if (!message || message.trim().length === 0) {
     return "Hi! I'm Open Friday. Tell me what you're working on!";
   }
   const intent = classifyIntent(message);
-  const response = generateResponse(intent, message.trim());
-  return response;
+  return generateResponse(intent, message.trim());
 }
 
-function generateCode(prompt, language) {
+async function generateCode(prompt, language) {
+  // Try AI code generation first
+  try {
+    const aiCode = await aiGenerateCode(prompt, language);
+    if (aiCode) return aiCode;
+  } catch {
+    // AI failed — fall back to templates
+  }
+
+  // Template fallback
   const lang = detectLanguage(prompt);
   switch (lang) {
     case "python": return genPython(prompt);
@@ -855,16 +893,15 @@ function interpretCommand(text) {
 /**
  * Generate a reply from a conversation history (messages array format).
  * @param {Array} messages - Array of { role, content } objects
- * @returns {string} Generated reply text
+ * @returns {Promise<string>} Generated reply text
  */
-function generateReply(messages) {
+async function generateReply(messages) {
   if (!Array.isArray(messages) || messages.length === 0) {
-    return "Hi! I'm Open Friday. Tell me what you're working on!";
+    return "Hi! I'm Open Friday v3.0. Tell me what you're working on!";
   }
-  // Extract the last user message and reply via the chat function
   const lastUserMsg = messages.filter(m => m.role === "user").pop();
   const text = lastUserMsg ? lastUserMsg.content : messages[messages.length - 1].content;
-  return chat(text);
+  return await chat(text);
 }
 
-module.exports = { IDENTITY, chat, generateCode, generateReply, interpretCommand };
+module.exports = { IDENTITY, chat, chatSync, generateCode, generateReply, interpretCommand, clearHistory, getContextWindow, checkOllamaHealth };

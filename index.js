@@ -1,71 +1,94 @@
 #!/usr/bin/env node
 "use strict";
 /**
- * Open Friday v2.0 — Rock-Solid CLI
- * Uses readline for reliable cross-platform input
- * Commands always work - simple, clean, robust
+ * Open Friday v3.0 — Real AI + Smart CLI
+ *  - Real AI via Ollama (local LLM) with rule-based fallback
+ *  - Streaming AI responses with typewriter effect
+ *  - ESC to interrupt responses mid-type
+ *  - Ctrl+P command palette (categorized, filterable)
+ *  - Tab to complete command names
+ *  - Conversation memory with context
+ *  - Polished terminal experience
  */
 
 if (process.argv[2] === "--version" || process.argv[2] === "-v") {
-  console.log("v2.0"); process.exit(0);
+  console.log("v3.0"); process.exit(0);
 }
 
 const fs = require("fs");
-const path = require("path");
 const http = require("http");
+const path = require("path");
 const readline = require("readline");
 const { exec } = require("child_process");
-const { IDENTITY, chat, generateCode, interpretCommand } = require("./core/builtin");
+const { IDENTITY, chat, chatSync, generateCode, interpretCommand, clearHistory, checkOllamaHealth } = require("./core/builtin");
 const auth = require("./core/auth");
+const authServer = require("./core/auth-server");
+const obsidianMemory = require("./core/obsidian-memory");
 const { CommandRegistry, CommandContext } = require("./commands/registry");
 const commandDefs = require("./commands/index");
 
 const PORT = 3456;
 const SESSION_PATH = path.join(__dirname, "core", "session.json");
 
-const C = { reset: "\x1b[0m", bold: "\x1b[1m", dim: "\x1b[2m", cyan: "\x1b[36m", green: "\x1b[32m", yellow: "\x1b[33m", red: "\x1b[31m", gray: "\x1b[90m" };
+// ─── Terminal colors & UI ───
+const C = { 
+  reset: "\x1b[0m", 
+  bold: "\x1b[1m", 
+  dim: "\x1b[2m", 
+  italic: "\x1b[3m", 
+  cyan: "\x1b[36m", 
+  green: "\x1b[32m", 
+  yellow: "\x1b[33m", 
+  red: "\x1b[31m", 
+  gray: "\x1b[90m", 
+  blue: "\x1b[34m", 
+  magenta: "\x1b[35m",
+  bgBlue: "\x1b[44m",
+  bgCyan: "\x1b[46m"
+};
+
+const UI = {
+  prompt: () => `${C.cyan}${C.bold}OpenFriday${C.reset} ${C.magenta}❯${C.reset} `,
+  divider: () => console.log(`${C.gray}${"─".repeat(process.stdout.columns || 50)}${C.reset}`),
+  header: (text) => console.log(`\n${C.bold}${C.cyan} ⚡ ${text}${C.reset}\n`),
+  error: (text) => console.log(`\n${C.red}${C.bold}  ✗ Error:${C.reset} ${C.red}${text}${C.reset}\n`),
+  success: (text) => console.log(`\n${C.green}${C.bold}  ✓ ${text}${C.reset}\n`),
+  aiBubble: (text) => {
+    const lines = text.split("\n");
+    console.log(`${C.blue}╭${C.reset} ${C.bold}Open Friday${C.reset}`);
+    lines.forEach((line, i) => {
+      const prefix = i === 0 ? "│ " : "│ ";
+      console.log(`${C.blue}${prefix}${C.reset}${line}`);
+    });
+    console.log(`${C.blue}╰${C.reset} ${C.gray}AI Assistant${C.reset}\n`);
+  },
+  agentLog: (step, action, status = "info") => {
+    const icons = { info: "⚙️", success: "✅", error: "❌", obs: "📝" };
+    const icon = icons[status] || "⚙️";
+    console.log(`${C.gray}[Step ${step}]${C.reset} ${icon} ${C.bold}${action}${C.reset}`);
+  }
+};
+
 function col(s, c) { return `${C[c]||""}${s}${C.reset}`; }
 function log(s, c) { console.log(c ? col(s, c) : s); }
 
-function showBanner() { console.clear(); log(IDENTITY.icon,"cyan"); log(` ${IDENTITY.name} ${IDENTITY.version}`,"cyan"); log(` ${IDENTITY.tagline}\n`,"dim"); }
+// ─── Response state for ESC interrupt ───
+let isResponding = false;
+let abortResponse = false;
+
+function showBanner() {
+  console.clear();
+  log(IDENTITY.icon, "cyan");
+  log(` ${IDENTITY.name} v3.0`, "cyan");
+  log(` ${IDENTITY.tagline}`, "dim");
+  log(col("  ESC to interrupt · Ctrl+P commands · Tab complete", "gray") + "\n");
+}
 
 function showLogin() {
   log("╔══════════════════════════════════════════════╗","cyan");
   log("║        🔐 LOGIN REQUIRED                     ║","cyan");
   log(`║  📎 ${col(`http://localhost:${PORT}`,"green")}                        ║`,"cyan");
   log("╚══════════════════════════════════════════════╝\n","cyan");
-}
-
-function startLoginServer() {
-  const W = path.join(__dirname,"webui");
-  return new Promise(r=>{
-    const s=http.createServer((req,res)=>{
-      if (req.url.startsWith("/auth-callback")) {
-        const u=new URL(req.url,`http://localhost:${PORT}`);
-        const n=u.searchParams.get("name")||"User",e=u.searchParams.get("email")||"user";
-        try{fs.writeFileSync(SESSION_PATH,JSON.stringify({userId:Date.now(),email:e,name:n,loginAt:new Date().toISOString()},null,2));}catch(ex){}
-        res.writeHead(200,{"Content-Type":"text/html"});
-        res.end(`<!DOCTYPE html><body style="background:#08080e;color:#00d4aa;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;"><div><h1>✓ Authenticated!</h1><p style="color:#8888aa;">Welcome ${n}. Close this tab.</p><script>window.close()</script></div></body>`);
-        return;
-      }
-      if (req.url==="/"||req.url==="/login.html") {
-        const lf=path.join(W,"login.html");
-        if (fs.existsSync(lf)) { let h=fs.readFileSync(lf,"utf8"); h=h.replace("</body>",`<script>const hL=handleLogin;handleLogin=function(e){e.preventDefault();const em=document.getElementById('loginEmail').value;window.location.href='/auth-callback?name='+encodeURIComponent(em.split('@')[0])+'&email='+encodeURIComponent(em);};const hR=handleRegister;handleRegister=function(e){e.preventDefault();const nm=document.getElementById('registerName').value;const em=document.getElementById('registerEmail').value;window.location.href='/auth-callback?name='+encodeURIComponent(nm)+'&email='+encodeURIComponent(em);};</script></body>`); res.writeHead(200,{"Content-Type":"text/html"});res.end(h);return; }
-      }
-      const ex=path.extname(req.url);
-      if (ex===".css"||ex===".js") { const fp=path.join(W,req.url.replace(/^\//,"")); if (fs.existsSync(fp)) { res.writeHead(200,{"Content-Type":ex===".css"?"text/css":"application/javascript"});res.end(fs.readFileSync(fp));return; } }
-      res.writeHead(404);res.end("Nope");
-    });
-    s.listen(PORT,()=>r(s));
-  });
-}
-
-function waitForLogin() {
-  return new Promise(r=>{
-    const sp=["⠋","⠙","⠹","⠸","⠼","⠴","⠦","⠧","⠇","⠏"];let i=0;
-    const si=setInterval(()=>{process.stdout.write(`\r${col(sp[i%10],"yellow")} Waiting...`);i++;},100);
-    const po=()=>{ const u=auth.getCurrentUser(); if(u){clearInterval(si);process.stdout.write("\r"+" ".repeat(30)+"\r");r(u);return;} try{const d=JSON.parse(fs.readFileSync(SESSION_PATH,"utf8"));if(d.email){clearInterval(si);process.stdout.write("\r"+" ".repeat(30)+"\r");r(d);return;}}catch(ex){} setTimeout(po,500); }; po();
-  });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -75,22 +98,40 @@ function waitForLogin() {
 async function main() {
   showBanner();
 
+  // ─── Authentication ───
   let user = auth.getCurrentUser();
   if (!user) {
     showLogin();
-    try { const s = await startLoginServer(); exec(`start "" "http://localhost:${PORT}"`); } catch(e) {}
+    try {
+      await authServer.start();
+      exec(`start "" "http://localhost:${PORT}"`);
+    } catch(e) {
+      UI.error(`Failed to start login server: ${e.message}`);
+    }
     log("⏳ Waiting...\n","dim");
-    user = await waitForLogin();
-    console.log(""); log(`✓ Welcome, ${col(user.name,"green")}!`); log("Type / for commands or just chat.\n","dim");
+    user = await authServer.waitForLogin();
+    console.log(""); UI.success(`Welcome, ${col(user.name,"green")}!`); log("Type / for commands or just chat.\n","dim");
   } else {
-    log(`✓ Logged in as ${col(user.name,"green")} (${user.email})`); log("Type / for commands or just chat.\n","dim");
+    UI.success(`Logged in as ${col(user.name,"green")} (${user.email})`);
+    log(col("  ESC to interrupt · Ctrl+P commands · Tab complete","gray") + "\n");
+  }
+
+  // ─── Load Obsidian Vault Memory ───
+  try {
+    const vaultSummary = obsidianMemory.getVaultSummary();
+    if (vaultSummary.totalNotes > 0) {
+      log(col(`  📓 Obsidian Vault: ${vaultSummary.totalNotes} notes loaded (${vaultSummary.memoryNotes} memory)`, "dim"));
+    }
+  } catch (e) {
+    // Non-blocking
   }
 
   // ─── Init ───
   const registry = new CommandRegistry();
   registry.registerAll(commandDefs);
   let currentDir = process.cwd();
-  const ctx = new CommandContext({ currentDir, rl: null, auth, builtin: { chat, generateCode }, fs, path, exec });
+  const ctx = new CommandContext({ currentDir, rl: null, auth, builtin: { chat, generateCode }, fs, path, exec, registry, UI });
+  const allCommands = registry.getAll();
 
   // ═══════════════════════════════════════════════
   // HELPERS
@@ -100,12 +141,65 @@ async function main() {
     console.log("");
     for (const cat of registry.getCategories()) {
       log(`[${cat}]`,"yellow");
-      for (const c of registry.getCategory(cat)) {
-        const h = c.args && c.args.hint ? ` ${col(c.args.hint,"gray")}` : "";
-        log(`  /${col(c.name.padEnd(14),"cyan")} ${col(c.description,"dim")}${h}`);
+      const cmds = registry.getCategory(cat);
+      for (const c of cmds) {
+        const hint = c.args && c.args.hint ? ` ${col(c.args.hint,"gray")}` : "";
+        const aliases = c.aliases && c.aliases.length ? col(` (${c.aliases.slice(0,3).join(", ")})`, "gray") : "";
+        log(`  /${col(c.name.padEnd(14),"cyan")} ${col(c.description,"dim")}${hint}${aliases}`);
       }
       console.log("");
     }
+    log(`  ${col(allCommands.length,"green")} commands total`,"dim");
+    console.log("");
+  }
+
+  // ─── Categorized command list (for / and Ctrl+P) ───
+  function showCommandList(filter) {
+    const shown = filter
+      ? registry.search(filter).map(r => r.command)
+      : allCommands;
+
+    if (filter && shown.length === 0) {
+      log(col(`\n  No commands matching "${filter}"`,"yellow"));
+      return;
+    }
+
+    const cats = registry.getCategories();
+    let count = 0;
+    console.log("");
+    for (const cat of cats) {
+      const cmds = shown.filter(c => c.category === cat);
+      if (cmds.length === 0) continue;
+      log(`  ${cat}`,"yellow");
+      for (const c of cmds) {
+        const hint = c.args && c.args.hint ? ` ${col(c.args.hint,"gray")}` : "";
+        log(`    ${col("/"+c.name.padEnd(14),"cyan")} ${col(c.description,"dim")}${hint}`);
+        count++;
+      }
+    }
+    if (filter) {
+      log(col(`  ${count} of ${allCommands.length} commands match "${filter}"`,"dim"));
+    } else {
+      log(col(`  ${allCommands.length} commands total — type /filter to narrow`,"dim"));
+    }
+    console.log("");
+  }
+
+  // ─── Typewriter with ESC interrupt ───
+  async function typeResponse(text) {
+    if (!text) return;
+    isResponding = true;
+    abortResponse = false;
+    for (let i = 0; i < text.length; i++) {
+      if (abortResponse) break;
+      process.stdout.write(text[i]);
+      await new Promise(r => setTimeout(r, 5));
+    }
+    if (abortResponse) {
+      log(col(" ⏹ interrupted","yellow"));
+    }
+    console.log("\n");
+    isResponding = false;
   }
 
   async function runCmd(cmdName, args) {
@@ -116,54 +210,93 @@ async function main() {
       const sug = registry.search(cmdName);
       if (intent && registry.resolve(intent.command)) {
         const ic = registry.resolve(intent.command);
-        log(`\n🤖 Interpreting as ${col("/"+ic,"cyan")} ${intent.args ? col(intent.args,"dim") : ""}`, "green");
-        log("", "reset");
+        log(`\n🤖 ${col("/"+ic,"cyan")} ${intent.args ? col(intent.args,"dim") : ""}`, "green");
         return await runCmd(ic, intent.args);
       }
       if (sug.length > 0 && sug[0].score > 20 && sug[0].command.name !== cmdName) {
         log(`\nUnknown /${cmdName}. Did you mean ${col("/"+sug[0].command.name,"cyan")}?`, "yellow");
-        log("", "reset");
         return;
       }
       // Last resort: natural language
-      log(`\nI don't recognize /${cmdName}. Let me help...\n`, "yellow");
-      const resp = chat(`The user wants to: ${cmdName} ${args || ""}`.trim());
-      for (let i = 0; i < resp.length; i++) { process.stdout.write(resp[i]); await new Promise(r => setTimeout(r, 5)); }
-      console.log("\n");
+      log(`\n🤔 Let me help with that...\n`, "yellow");
+      const resp = await chat(`The user wants to: ${cmdName} ${args || ""}`.trim());
+      await typeResponse(resp);
       return;
     }
     const cmd = registry.get(resolved);
     if (cmd.args && cmd.args.required && !args) {
       log(`\nUsage: /${cmd.name} ${cmd.args.hint||"<required>"}`, "yellow");
-      log("", "reset");
+      log(col("  add the required argument after the command name","dim") + "\n");
       return;
     }
     try {
+      log("");  // spacing
       const result = await cmd.handler(ctx, args);
       if (result === "SHOW_HELP") showHelp();
       if (result === "SHOW_BANNER") showBanner();
+      if (result === "WAIT_LOGIN") {
+        log(col("⏳ Waiting for login in browser...","dim") + "\n");
+        const srv = require("./core/auth-server");
+        const u = await srv.waitForLogin();
+        UI.success(`Welcome, ${u.name}!`);
+      }
       if (ctx.currentDir !== currentDir) { currentDir = ctx.currentDir; process.chdir(currentDir); }
-    } catch(e) { log(`\nError: ${e.message}`, "red"); }
+    } catch(e) { UI.error(e.message); }
   }
 
   async function chatResponse(msg) {
     if (!msg.trim()) return;
-    console.log("");
-    const resp = chat(msg);
-    for (let i = 0; i < resp.length; i++) { process.stdout.write(resp[i]); await new Promise(r => setTimeout(r, 5)); }
-    console.log("\n");
+
+    const spinners = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+    let spinIdx = 0;
+    const spinner = setInterval(() => {
+      process.stdout.write(`\r${col(spinners[spinIdx % 10], "yellow")} Thinking...`);
+      spinIdx++;
+    }, 80);
+
+    try {
+      let fullResponse = "";
+      let aiMode = false;
+
+      const result = await chat(msg, {
+        stream: true,
+        onChunk: (chunk) => {
+          if (!aiMode) {
+            clearInterval(spinner);
+            process.stdout.write("\r" + " ".repeat(20) + "\r");
+            aiMode = true;
+            isResponding = true;
+            abortResponse = false;
+          }
+          if (abortResponse) return;
+          process.stdout.write(chunk);
+          fullResponse += chunk;
+        },
+        onDone: () => {
+          if (aiMode) {
+            console.log("\n");
+            isResponding = false;
+          }
+        },
+        onError: () => { },
+      });
+
+      if (!aiMode && result) {
+        clearInterval(spinner);
+        process.stdout.write("\r" + " ".repeat(20) + "\r");
+        UI.aiBubble(result);
+      }
+    } catch (e) {
+      clearInterval(spinner);
+      process.stdout.write("\r" + " ".repeat(20) + "\r");
+      UI.error(`AI error: ${e.message}`);
+      log(col("  Using offline mode", "dim") + "\n");
+      UI.aiBubble(chatSync(msg));
+    }
   }
 
-  function showCommandSuggestions(filter) {
-    const all = filter ? registry.search(filter) : registry.getAll().map(c => ({ command: c, score: 0 }));
-    const shown = (filter ? all.map(r => r.command) : all).slice(0, 8);
-    console.log(col("  Commands:", "cyan"));
-    shown.forEach(cmd => console.log(`    ${col("/"+cmd.name.padEnd(14), "bold")} ${col(cmd.description, "gray")}`));
-    if (all.length > 8) console.log(col(`    ... and ${all.length - 8} more`, "gray"));
-    if (filter) console.log(col(`  Filtered by: "${filter}"`, "dim"));
-    console.log("");
-  }
-
+  // ═══════════════════════════════════════════════
+  // READLINE INTERFACE
   // ═══════════════════════════════════════════════
   // READLINE INTERFACE
   // ═══════════════════════════════════════════════
@@ -172,41 +305,115 @@ async function main() {
     input: process.stdin,
     output: process.stdout,
     terminal: true,
-    prompt: `${col(">","green")} `,
+    prompt: UI.prompt(),
+    completer: (line) => {
+      if (!line.startsWith("/")) return [[], line];
+      const partial = line.slice(1).toLowerCase();
+      const hits = allCommands
+        .filter(c => c.name.startsWith(partial) || (c.aliases || []).some(a => a.startsWith(partial)))
+        .map(c => "/" + c.name);
+      return [hits.length ? hits : [], line];
+    }
+  });
+
+  function safePrompt() {
+    try { rl.prompt(); } catch (e) { /* readline already closed (e.g., piped input) */ }
+  }
+
+  rl.on("close", () => {
+    console.log("\n");
+    process.exit(0);
   });
 
   rl.prompt();
 
-  rl.on("line", async (input) => {
-    const line = input.trim();
-    if (!line) { rl.prompt(); return; }
+  // ═══════════════════════════════════════════════
+  // KEYBOARD SHORTCUTS
+  // ═══════════════════════════════════════════════
+  // readline binds Ctrl+P to "previous history" internally.
+  // Our keypress listener fires AFTER readline's internal one.
+  // For Ctrl+P we undo readline's history nav and show our palette instead.
 
-    if (line === "/") {
-      // Show command palette
-      console.log(col("\n  All Commands:", "cyan"));
-      const all = registry.getAll();
-      all.slice(0, 10).forEach(cmd => console.log(`    ${col("/"+cmd.name.padEnd(14), "bold")} ${col(cmd.description, "gray")}`));
-      if (all.length > 10) console.log(col(`    ... and ${all.length - 10} more`, "gray"));
-      console.log(col("  Type the full command, e.g. /fix my bug", "dim"));
-      console.log("");
-      rl.prompt();
+  process.stdin.on("keypress", (str, key) => {
+    if (!key) return;
+
+    // ESC — abort typewriter response mid-type
+    if (key.name === "escape" && isResponding) {
+      abortResponse = true;
       return;
     }
 
+    // Ctrl+P — show command palette
+    if (key.ctrl && key.name === "p" && !isResponding) {
+      // By now readline may have changed the line to a history entry.
+      // Undo on next tick to let readline finish visually.
+      setImmediate(() => {
+        rl.line = "";
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0);
+        showCommandList();
+        safePrompt();
+      });
+      return;
+    }
+  });
+
+  // ═══════════════════════════════════════════════
+  // LINE HANDLER
+  // ═══════════════════════════════════════════════
+
+  rl.on("line", async (input) => {
+    const line = input.trim();
+    if (!line) { safePrompt(); return; }
+
+    // "/" alone — show all commands categorized
+    if (line === "/") {
+      showCommandList();
+      safePrompt();
+      return;
+    }
+
+    // "/filter" — show matching commands (no spaces = category/search, not command+args)
+    if (line.startsWith("/") && !line.includes(" ")) {
+      const maybeCmd = line.slice(1).toLowerCase();
+      // If it matches an exact command, run it (with empty args)
+      if (registry.resolve(maybeCmd)) {
+        await runCmd(maybeCmd, "");
+        safePrompt();
+        return;
+      }
+      // If search produces results, show filtered list
+      const results = registry.search(maybeCmd);
+      if (results.length > 0) {
+        showCommandList(maybeCmd);
+        safePrompt();
+        return;
+      }
+    }
+
+    // "/command [args]" — run a command
     if (line.startsWith("/")) {
       const parts = line.slice(1).split(" ");
       const cmdName = parts[0].toLowerCase();
       const args = parts.slice(1).join(" ");
       await runCmd(cmdName, args);
-      rl.prompt();
+      safePrompt();
       return;
     }
 
+    // Natural language chat
     await chatResponse(line);
-    rl.prompt();
+    safePrompt();
   });
 
-  process.on("SIGINT", () => { console.log("\n"); process.exit(0); });
+  // ─── Ctrl+C ───
+  process.on("SIGINT", () => {
+    if (isResponding) {
+      abortResponse = true;
+    } else {
+      console.log("\n"); process.exit(0);
+    }
+  });
 }
 
 main();

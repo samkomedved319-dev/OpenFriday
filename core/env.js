@@ -84,6 +84,12 @@ function getOllamaBaseUrl() {
   return (process.env.OLLAMA_BASE_URL || DEFAULT_OLLAMA_BASE_URL).trim();
 }
 
+function getObsidianVaultPath() {
+  const customPath = (process.env.OBSIDIAN_VAULT_PATH || "").trim();
+  if (customPath) return customPath;
+  return path.join(projectRoot, "OpenFriday");
+}
+
 module.exports = {
   ensureEnvFiles,
   loadDotEnv,
@@ -91,5 +97,6 @@ module.exports = {
   getProvider,
   getOpenRouterApiKey,
   getOllamaBaseUrl,
+  getObsidianVaultPath,
   envPath,
 };
