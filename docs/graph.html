@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open Friday — Architecture Graph</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0f172a;
+    color: #f1f5f9;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    padding: 2rem;
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #f1f5f9, #6366f1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: #94a3b8;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+  .section {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+  .section h2 {
+    color: #6366f1;
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #334155;
+  }
+  .diagram {
+    display: flex;
+    justify-content: center;
+    overflow-x: auto;
+    padding: 1rem 0;
+  }
+  .diagram svg {
+    max-width: 100%;
+    height: auto;
+  }
+  .legend {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #0f172a;
+    border-radius: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #cbd5e1;
+  }
+  .legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+  .footer {
+    text-align: center;
+    color: #64748b;
+    font-size: 0.85rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 768px) {
+    body { padding: 1rem; }
+    .section { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>⚡ Open Friday</h1>
+<p class="subtitle">Full Architecture — CLI · AI Engine · Obsidian Memory · Agent System</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-color" style="background:#6366f1"></div> User / Entry</div>
+  <div class="legend-item"><div class="legend-color" style="background:#1e293b;border:1px solid #6366f1"></div> System Layer</div>
+  <div class="legend-item"><div class="legend-color" style="background:#10b981"></div> AI Response</div>
+  <div class="legend-item"><div class="legend-color" style="background:#f59e0b"></div> Obsidian Vault</div>
+  <div class="legend-item"><div class="legend-color" style="background:#ef4444"></div> Fallback</div>
+</div>
+
+<div class="section">
+  <h2>📍 System Overview — Full Flowchart</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart TB
+    User([User]) --> CLI[CLI Interface<br>index.js]
+    
+    subgraph CLI_Layer ["CLI Layer"]
+        CLI --> Auth{Authenticated?}
+        Auth -- No --> Login[Login via Browser<br>localhost:3456]
+        Login --> Session[Session Created<br>core/session.json]
+        Auth -- Yes --> Session
+        Session --> Prompt[OpenFriday ❯ Prompt]
+    end
+
+    subgraph Command_System ["Command System"]
+        Prompt --> Router{Route Input}
+        Router -- "/command" --> Registry[Command Registry<br>commands/registry.js]
+        Registry --> CmdHandler[Command Handlers<br>commands/index.js]
+        CmdHandler --> CmdResult[Execute & Return]
+        Router -- "natural language" --> AI_Chat
+    end
+
+    subgraph AI_Engine ["AI Engine"]
+        AI_Chat[Chat Handler<br>core/builtin.js] --> Provider{Route by<br>AI_PROVIDER}
+        Provider -- "ollama" --> Ollama[Ollama Client<br>core/ai.js]
+        Provider -- "openrouter" --> OpenRouter[OpenRouter Client<br>core/ai.js]
+        Ollama --> OllamaHealth{Health Check<br>/api/tags}
+        OllamaHealth -- "❌ Offline" --> Fallback[Rule-Based Fallback<br>core/builtin.js]
+        OllamaHealth -- "✅ Online" --> AI_Response
+        OpenRouter --> ORHealth{API Key Set?}
+        ORHealth -- "❌ No Key" --> Fallback
+        ORHealth -- "✅ Has Key" --> AI_Response
+        AI_Response[Stream / Non-Stream] --> User
+    end
+
+    subgraph Memory_System ["Memory System"]
+        Startup[Startup / Login] --> LoadVault[Load Obsidian Vault<br>core/obsidian-memory.js]
+        LoadVault --> Context[Inject Notes as<br>AI System Context]
+        AI_Conversation[AI Conversation] --> SaveNote[Save to Vault<br>YYYY-MM-DD_Desc.md]
+        SaveNote --> Vault[Obsidian Vault<br>OpenFriday/]
+        Vault --> MemoryCmd[/memory command]
+        MemoryCmd --> Search[Full-Text Search]
+        MemoryCmd --> List[List All Notes]
+        MemoryCmd --> SaveStruct[Save Structured Memory]
+    end
+
+    subgraph Agent_System ["Autonomous Agent"]
+        Agent[/agent command<br>core/agent.js] --> AgentLoop{Sense→Plan→Act→Verify}
+        AgentLoop --> ToolUse[Tool Calls<br>&lt;tool&gt;command&lt;/tool&gt;]
+        ToolUse --> Registry
+        AgentLoop --> AgentResult[Complete / Timeout]
+    end
+
+    AI_Chat --> Context
+    AI_Conversation --> SaveNote
+    Vault --> Context
+
+    style User fill:#6366f1,color:#fff,stroke:#4f46e5
+    style CLI fill:#1e293b,color:#f1f5f9,stroke:#6366f1
+    style AI_Response fill:#10b981,color:#fff,stroke:#059669
+    style Vault fill:#f59e0b,color:#fff,stroke:#d97706
+    style Fallback fill:#ef4444,color:#fff,stroke:#dc2626
+    style Session fill:#334155,color:#f1f5f9
+    style Prompt fill:#334155,color:#f1f5f9
+    </pre>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🔄 Data Flow — Sequence Diagram</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+sequenceDiagram
+    participant User as You (User)
+    participant CLI as CLI (index.js)
+    participant AI as AI Engine (core/ai.js)
+    participant Provider as AI Provider<br>(Ollama / OpenRouter)
+    participant Vault as Obsidian Vault Memory
+    
+    User->>CLI: Types a message
+    alt starts with "/"
+        CLI->>CLI: Route to command handler
+        CLI-->>User: Command result
+    else natural language
+        CLI->>AI: chat(message)
+        AI->>Vault: Load all notes as context
+        Vault-->>AI: Memory context
+        AI->>Provider: Send prompt + memory
+        Provider-->>AI: AI response (streaming)
+        AI-->>User: Typewriter response
+        AI->>Vault: Save conversation as note
+        Note over Vault: 2026-05-20_14-30-00_User_What-is...
+        Note over Vault: 2026-05-20_14-30-05_AI_The-answer-is...
+    end
+    </pre>
+  </div>
+</div>
+
+<div class="section">
+  <h2>🚀 Startup Sequence</h2>
+  <div class="diagram">
+    <pre class="mermaid">
+flowchart LR
+    Start[index.js] --> Banner[Show Banner]
+    Banner --> CheckAuth{Session exists?}
+    CheckAuth -- No --> LoginServer[Start HTTP :3456]
+    LoginServer --> Wait[Open browser → wait]
+    Wait --> SessionCreated[Write session.json]
+    CheckAuth -- Yes --> LoadMem[Load Obsidian Vault]
+    SessionCreated --> LoadMem
+    LoadMem --> PrintMem["📓 Obsidian Vault: N notes"]
+    PrintMem --> Prompt[Show prompt]
+
+    style Start fill:#6366f1,color:#fff
+    style Prompt fill:#1e293b,color:#f1f5f9,stroke:#6366f1
+    style PrintMem fill:#f59e0b,color:#fff
+    </pre>
+  </div>
+</div>
+
+<div class="section">
+  <h2>📁 File Structure</h2>
+  <div class="diagram" style="justify-content:flex-start;font-family:monospace;white-space:pre;font-size:0.85rem;line-height:1.7;color:#cbd5e1;">
+openFRIDAY/
+├── index.js                  CLI entry point + readline UI
+├── .env                      AI_PROVIDER, keys, vault path
+│
+├── core/
+│   ├── ai.js                 Multi-provider AI (Ollama + OpenRouter)
+│   ├── builtin.js            Rule-based fallback, intent classifier
+│   ├── agent.js              Autonomous coding agent
+│   ├── obsidian-memory.js    Obsidian vault CRUD
+│   ├── auth.js               User auth system
+│   └── auth-server.js        HTTP login server
+│
+├── commands/
+│   ├── index.js              All /command definitions
+│   └── registry.js           Command registration + search
+│
+├── OpenFriday/               📓 Obsidian Vault (AI's memory)
+│   └── Memory/               Auto-saved conversation notes
+│
+├── docs/
+│   ├── architecture.md       Mermaid diagrams (GitHub-rendered)
+│   └── graph.html            ← You are here
+│
+└── webui/                    Login page assets
+  </div>
+</div>
+
+<div class="footer">
+  Open Friday v3.0 — <a href="https://github.com/samkomedved319-dev/OpenFriday" style="color:#6366f1;">View on GitHub</a>
+</div>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#6366f1',
+      primaryTextColor: '#f1f5f9',
+      primaryBorderColor: '#4f46e5',
+      lineColor: '#475569',
+      secondaryColor: '#1e293b',
+      tertiaryColor: '#0f172a',
+      fontSize: '14px'
+    },
+    flowchart: {
+      useMaxWidth: true,
+      htmlLabels: true
+    }
+  });
+</script>
+</body>
+</html>
